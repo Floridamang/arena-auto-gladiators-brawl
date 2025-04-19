@@ -3,16 +3,17 @@ import React from "react";
 import { Gladiator } from "@/types/gladiator";
 import { Progress } from "@/components/ui/progress";
 import GladiatorSvg from "./GladiatorSvg";
-import { Sword, Heart } from "lucide-react";
+import { Sword, Shield, Zap, Activity, Clock, Heart } from "lucide-react";
 
 interface GladiatorCardProps {
   gladiator: Gladiator;
   isAttacking: boolean;
   isHurt: boolean;
   isCriticalHit?: boolean;
+  isEvaded?: boolean;
 }
 
-const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit }: GladiatorCardProps) => {
+const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded }: GladiatorCardProps) => {
   return (
     <div className="relative">
       <div className="absolute top-0 left-0 right-0 p-6 rounded-lg bg-game-light shadow-lg z-10">
@@ -28,6 +29,26 @@ const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit }: Gladia
             </div>
           ))}
         </div>
+        
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3 text-sm">
+          <div className="flex items-center gap-1">
+            <Sword className="w-4 h-4 text-game-primary" /> 
+            <span>Strength: {gladiator.strength}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Zap className="w-4 h-4 text-game-primary" /> 
+            <span>Agility: {gladiator.agility}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Activity className="w-4 h-4 text-game-primary" /> 
+            <span>Endurance: {gladiator.endurance}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="w-4 h-4 text-game-primary" /> 
+            <span>Stamina: {Math.floor(gladiator.stamina)}</span>
+          </div>
+        </div>
+        
         <div className="flex justify-between mb-2">
           <span className="text-game-dark">Health</span>
           <span className="text-game-primary">{gladiator.health}</span>
@@ -40,6 +61,7 @@ const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit }: Gladia
           isAttacking={isAttacking}
           isHurt={isHurt}
           isCriticalHit={isCriticalHit}
+          isEvaded={isEvaded}
         />
       </div>
     </div>

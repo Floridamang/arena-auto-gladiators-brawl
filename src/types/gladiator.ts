@@ -8,6 +8,11 @@ export interface Gladiator {
   isLeft?: boolean;
   traits: GladiatorTrait[];
   attackCount?: number;
+  strength: number;
+  agility: number;
+  stamina: number;
+  maxStamina: number;
+  endurance: number;
 }
 
 export interface GladiatorTrait {

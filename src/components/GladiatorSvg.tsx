@@ -1,3 +1,4 @@
+
 import { Gladiator } from "@/types/gladiator";
 
 interface GladiatorSvgProps {
@@ -5,26 +6,32 @@ interface GladiatorSvgProps {
   isAttacking: boolean;
   isHurt: boolean;
   isCriticalHit?: boolean;
+  isEvaded?: boolean;
 }
 
-const GladiatorSvg = ({ gladiator, isAttacking, isHurt, isCriticalHit }: GladiatorSvgProps) => {
+const GladiatorSvg = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded }: GladiatorSvgProps) => {
   const animationClass = gladiator.isLeft
     ? isAttacking
       ? "animate-attack-right"
       : isHurt
       ? `animate-take-hit ${isCriticalHit ? "animate-shake" : ""}`
+      : isEvaded
+      ? "animate-evade"
       : ""
     : isAttacking
     ? "animate-attack-left"
     : isHurt
     ? `animate-take-hit ${isCriticalHit ? "animate-shake" : ""}`
+    : isEvaded
+    ? "animate-evade"
     : "";
 
   const mirrorClass = gladiator.isLeft ? "" : "scale-x-[-1]";
   const criticalClass = isCriticalHit && isHurt ? "drop-shadow-[0_0_8px_rgba(234,56,76,0.8)]" : "";
+  const evadeClass = isEvaded ? "opacity-50" : "";
 
   return (
-    <div className={`${animationClass} ${mirrorClass} ${criticalClass}`}>
+    <div className={`${animationClass} ${mirrorClass} ${criticalClass} ${evadeClass}`}>
       <svg width="120" height="160" viewBox="0 0 120 160">
         {/* Body */}
         <path

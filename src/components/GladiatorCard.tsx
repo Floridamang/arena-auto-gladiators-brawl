@@ -15,7 +15,7 @@ interface GladiatorCardProps {
 
 const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded }: GladiatorCardProps) => {
   return (
-    <div className="relative">
+    <div className="relative h-[350px]"> {/* Increased height to accommodate lower SVG */}
       <div className="absolute top-0 left-0 right-0 p-6 rounded-lg bg-game-light shadow-lg z-10">
         <h3 className="text-2xl font-bold text-game-dark mb-2">{gladiator.name}</h3>
         <div className="flex justify-center gap-2 mb-2">
@@ -55,7 +55,7 @@ const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded
         </div>
         <Progress value={gladiator.health} className="h-2 bg-game-secondary" />
       </div>
-      <div className="mt-40">
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full flex justify-center">
         <GladiatorSvg
           gladiator={gladiator}
           isAttacking={isAttacking}
@@ -69,3 +69,4 @@ const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded
 };
 
 export default GladiatorCard;
+

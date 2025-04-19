@@ -4,24 +4,34 @@ import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
 import { Gladiator } from "@/types/gladiator";
 import { calculateDamage, delay } from "@/utils/battle";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const INITIAL_GLADIATORS: [Gladiator, Gladiator] = [
   {
     id: "1",
     name: "Marcus",
-    attack: 8,
-    defense: 5,
+    attack: 15,
+    defense: 10,
     health: 100,
     isLeft: true,
+    traits: [{
+      name: "resentful",
+      description: "Does double damage below 10% health"
+    }],
+    attackCount: 0
   },
   {
     id: "2",
     name: "Brutus",
-    attack: 6,
-    defense: 7,
+    attack: 12,
+    defense: 8,
     health: 100,
     isLeft: false,
+    traits: [{
+      name: "bold",
+      description: "First two attacks are critical hits"
+    }],
+    attackCount: 0
   },
 ];
 
@@ -30,6 +40,7 @@ const Arena = () => {
   const [isFighting, setIsFighting] = useState(false);
   const [attackingGladiator, setAttackingGladiator] = useState<number | null>(null);
   const [hurtGladiator, setHurtGladiator] = useState<number | null>(null);
+  const [criticalHit, setCriticalHit] = useState(false);
   const { toast } = useToast();
 
   const resetBattle = () => {
@@ -37,6 +48,7 @@ const Arena = () => {
     setIsFighting(false);
     setAttackingGladiator(null);
     setHurtGladiator(null);
+    setCriticalHit(false);
   };
 
   const fight = async () => {
@@ -53,16 +65,26 @@ const Arena = () => {
         setAttackingGladiator(attacker);
         setHurtGladiator(defender);
         
-        const damage = calculateDamage(gladiators[attacker], gladiators[defender]);
+        const { damage, isCritical } = calculateDamage(gladiators[attacker], gladiators[defender]);
+        setCriticalHit(isCritical);
         
         setGladiators(prev => [
-          { ...prev[0], health: defender === 0 ? Math.max(0, prev[0].health - damage) : prev[0].health },
-          { ...prev[1], health: defender === 1 ? Math.max(0, prev[1].health - damage) : prev[1].health }
+          {
+            ...prev[0],
+            health: defender === 0 ? Math.max(0, prev[0].health - damage) : prev[0].health,
+            attackCount: attacker === 0 ? (prev[0].attackCount || 0) + 1 : prev[0].attackCount
+          },
+          {
+            ...prev[1],
+            health: defender === 1 ? Math.max(0, prev[1].health - damage) : prev[1].health,
+            attackCount: attacker === 1 ? (prev[1].attackCount || 0) + 1 : prev[1].attackCount
+          }
         ]);
         
         await delay(1000);
         setAttackingGladiator(null);
         setHurtGladiator(null);
+        setCriticalHit(false);
         await delay(500);
       }
     }

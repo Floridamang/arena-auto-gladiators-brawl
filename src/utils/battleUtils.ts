@@ -34,15 +34,26 @@ export const processBattleRound = async (
   setEvadedHit: (value: boolean) => void,
   checkEndCondition: () => boolean
 ): Promise<boolean> => {
+  // Ensure gladiators don't get health updates if they're at 0 or below
+  if (gladiators[0].health <= 0 || gladiators[1].health <= 0) {
+    return checkEndCondition();
+  }
+  
   const attackOrder = gladiators[0].agility >= gladiators[1].agility ? [0, 1] : [1, 0];
   
   for (let i of attackOrder) {
-    if (checkEndCondition()) {
-      return true;
+    // Check before each attack in case a previous attack ended the battle
+    if (gladiators[0].health <= 0 || gladiators[1].health <= 0) {
+      return checkEndCondition();
     }
     
     const attacker = i;
     const defender = 1 - i;
+    
+    // Skip attack if attacker has no health
+    if (gladiators[attacker].health <= 0) {
+      continue;
+    }
     
     // Calculate attack speed based on agility (300-1000ms)
     const attackSpeed = Math.max(300, 1000 - gladiators[attacker].agility * 50);
@@ -60,6 +71,7 @@ export const processBattleRound = async (
       setCriticalHit(isCritical);
       setEvadedHit(false);
       
+      // Prevent negative health by clamping to 0
       const newHealth = Math.max(0, gladiators[defender].health - damage);
       
       const updatedGladiators: [Gladiator, Gladiator] = [
@@ -79,12 +91,10 @@ export const processBattleRound = async (
       
       setGladiators(updatedGladiators);
       
-      // Check for battle end after damage
+      // Immediately check if the battle has ended
       if (newHealth <= 0) {
         await delay(attackSpeed);
-        if (checkEndCondition()) {
-          return true;
-        }
+        return checkEndCondition();
       }
     }
     

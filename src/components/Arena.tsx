@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
@@ -57,6 +58,9 @@ const Arena = () => {
   useEffect(() => {
     if (!isFighting) return;
     
+    // Only recharge stamina if the battle is ongoing and both gladiators are alive
+    if (gladiators[0].health <= 0 || gladiators[1].health <= 0) return;
+    
     const interval = setInterval(() => {
       setGladiators(prevGladiators => [
         rechargeStamina(prevGladiators[0]),
@@ -65,7 +69,7 @@ const Arena = () => {
     }, 500);
     
     return () => clearInterval(interval);
-  }, [isFighting]);
+  }, [isFighting, gladiators]);
 
   const resetBattle = () => {
     setGladiators(INITIAL_GLADIATORS);
@@ -84,11 +88,17 @@ const Arena = () => {
     setBattleEnded(false);
     setWinner(null);
 
-    while (!battleEnded) {
-      const checkEnd = () => checkBattleEnd(gladiators, setBattleEnded, setIsFighting, setWinner);
+    // Store battle ended state in a local variable to prevent race conditions
+    let isBattleEnded = false;
+
+    while (!isBattleEnded) {
+      const checkEnd = () => {
+        const result = checkBattleEnd(gladiators, setBattleEnded, setIsFighting, setWinner);
+        isBattleEnded = result;
+        return result;
+      };
       
       if (checkEnd()) {
-        setIsFighting(false);
         break;
       }
 
@@ -102,7 +112,7 @@ const Arena = () => {
         checkEnd
       );
 
-      if (shouldBreak || battleEnded) {
+      if (shouldBreak || isBattleEnded) {
         break;
       }
     }

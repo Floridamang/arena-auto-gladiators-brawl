@@ -13,19 +13,13 @@ export const checkBattleEnd = (
     setBattleEnded(true);
     setIsFighting(false);
     setWinner(gladiators[1]);
-    toast({
-      title: "Battle Finished!",
-      description: `${gladiators[1].name} is victorious!`,
-    });
+    toast.success(`${gladiators[1].name} is victorious!`);
     return true;
   } else if (gladiators[1].health <= 0) {
     setBattleEnded(true);
     setIsFighting(false);
     setWinner(gladiators[0]);
-    toast({
-      title: "Battle Finished!",
-      description: `${gladiators[0].name} is victorious!`,
-    });
+    toast.success(`${gladiators[0].name} is victorious!`);
     return true;
   }
   return false;
@@ -68,20 +62,22 @@ export const processBattleRound = async (
       
       const newHealth = Math.max(0, gladiators[defender].health - damage);
       
-      setGladiators(prev => [
+      const updatedGladiators: [Gladiator, Gladiator] = [
         {
-          ...prev[0],
-          health: defender === 0 ? newHealth : prev[0].health,
-          attackCount: attacker === 0 ? (prev[0].attackCount || 0) + 1 : prev[0].attackCount,
-          stamina: attacker === 0 ? Math.max(0, prev[0].stamina - 10) : prev[0].stamina
+          ...gladiators[0],
+          health: defender === 0 ? newHealth : gladiators[0].health,
+          attackCount: attacker === 0 ? (gladiators[0].attackCount || 0) + 1 : gladiators[0].attackCount,
+          stamina: attacker === 0 ? Math.max(0, gladiators[0].stamina - 10) : gladiators[0].stamina
         },
         {
-          ...prev[1],
-          health: defender === 1 ? newHealth : prev[1].health,
-          attackCount: attacker === 1 ? (prev[1].attackCount || 0) + 1 : prev[1].attackCount,
-          stamina: attacker === 1 ? Math.max(0, prev[1].stamina - 10) : prev[1].stamina
+          ...gladiators[1],
+          health: defender === 1 ? newHealth : gladiators[1].health,
+          attackCount: attacker === 1 ? (gladiators[1].attackCount || 0) + 1 : gladiators[1].attackCount,
+          stamina: attacker === 1 ? Math.max(0, gladiators[1].stamina - 10) : gladiators[1].stamina
         }
-      ]);
+      ];
+      
+      setGladiators(updatedGladiators);
       
       // Check for battle end after damage
       if (newHealth <= 0) {

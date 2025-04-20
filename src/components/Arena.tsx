@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
@@ -62,10 +61,19 @@ const Arena = () => {
     if (gladiators[0].health <= 0 || gladiators[1].health <= 0) return;
     
     const interval = setInterval(() => {
-      setGladiators(prevGladiators => [
-        rechargeStamina(prevGladiators[0]),
-        rechargeStamina(prevGladiators[1])
-      ]);
+      setGladiators(prevGladiators => {
+        // Only recharge stamina, but preserve current health values
+        return [
+          {
+            ...rechargeStamina(prevGladiators[0]),
+            health: prevGladiators[0].health
+          },
+          {
+            ...rechargeStamina(prevGladiators[1]),
+            health: prevGladiators[1].health
+          }
+        ] as [Gladiator, Gladiator];
+      });
     }, 500);
     
     return () => clearInterval(interval);

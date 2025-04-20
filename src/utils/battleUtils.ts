@@ -1,4 +1,3 @@
-
 import { Gladiator } from "@/types/gladiator";
 import { calculateDamage, delay } from "./battle";
 import { toast } from "@/components/ui/sonner";
@@ -41,9 +40,12 @@ export const processBattleRound = async (
   
   const attackOrder = gladiators[0].agility >= gladiators[1].agility ? [0, 1] : [1, 0];
   
+  // Keep track of current health values to prevent regeneration
+  let currentHealths = [gladiators[0].health, gladiators[1].health];
+  
   for (let i of attackOrder) {
     // Check before each attack in case a previous attack ended the battle
-    if (gladiators[0].health <= 0 || gladiators[1].health <= 0) {
+    if (currentHealths[0] <= 0 || currentHealths[1] <= 0) {
       return checkEndCondition();
     }
     
@@ -51,7 +53,7 @@ export const processBattleRound = async (
     const defender = 1 - i;
     
     // Skip attack if attacker has no health
-    if (gladiators[attacker].health <= 0) {
+    if (currentHealths[attacker] <= 0) {
       continue;
     }
     
@@ -72,18 +74,21 @@ export const processBattleRound = async (
       setEvadedHit(false);
       
       // Prevent negative health by clamping to 0
-      const newHealth = Math.max(0, gladiators[defender].health - damage);
+      const newHealth = Math.max(0, currentHealths[defender] - damage);
+      
+      // Update our tracking variable
+      currentHealths[defender] = newHealth;
       
       const updatedGladiators: [Gladiator, Gladiator] = [
         {
           ...gladiators[0],
-          health: defender === 0 ? newHealth : gladiators[0].health,
+          health: defender === 0 ? newHealth : currentHealths[0],
           attackCount: attacker === 0 ? (gladiators[0].attackCount || 0) + 1 : gladiators[0].attackCount,
           stamina: attacker === 0 ? Math.max(0, gladiators[0].stamina - 10) : gladiators[0].stamina
         },
         {
           ...gladiators[1],
-          health: defender === 1 ? newHealth : gladiators[1].health,
+          health: defender === 1 ? newHealth : currentHealths[1],
           attackCount: attacker === 1 ? (gladiators[1].attackCount || 0) + 1 : gladiators[1].attackCount,
           stamina: attacker === 1 ? Math.max(0, gladiators[1].stamina - 10) : gladiators[1].stamina
         }

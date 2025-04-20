@@ -110,17 +110,24 @@ const Arena = () => {
     setBattleEnded(false);
     setWinner(null);
 
-    // Continuous battle loop
-    while (true) {
+    // Main battle loop
+    while (!battleEnded) {
       // Check for battle end condition first
-      if (checkBattleEnd()) break;
+      if (checkBattleEnd()) {
+        setIsFighting(false);
+        break;
+      }
       
       // Calculate attack order based on agility
       const attackOrder = gladiators[0].agility >= gladiators[1].agility ? [0, 1] : [1, 0];
       
+      let shouldBreak = false;
       for (let i of attackOrder) {
         // Recheck for battle end after each attack
-        if (checkBattleEnd()) break;
+        if (checkBattleEnd()) {
+          shouldBreak = true;
+          break;
+        }
         
         const attacker = i;
         const defender = 1 - i;
@@ -142,21 +149,32 @@ const Arena = () => {
           setCriticalHit(isCritical);
           setEvadedHit(false);
           
+          const newHealth = Math.max(0, gladiators[defender].health - damage);
+          
           // Deduct stamina cost (10 points per attack)
           setGladiators(prev => [
             {
               ...prev[0],
-              health: defender === 0 ? Math.max(0, prev[0].health - damage) : prev[0].health,
+              health: defender === 0 ? newHealth : prev[0].health,
               attackCount: attacker === 0 ? (prev[0].attackCount || 0) + 1 : prev[0].attackCount,
               stamina: attacker === 0 ? Math.max(0, prev[0].stamina - 10) : prev[0].stamina
             },
             {
               ...prev[1],
-              health: defender === 1 ? Math.max(0, prev[1].health - damage) : prev[1].health,
+              health: defender === 1 ? newHealth : prev[1].health,
               attackCount: attacker === 1 ? (prev[1].attackCount || 0) + 1 : prev[1].attackCount,
               stamina: attacker === 1 ? Math.max(0, prev[1].stamina - 10) : prev[1].stamina
             }
           ]);
+          
+          // Immediately check if the battle should end after updating health
+          if (newHealth <= 0) {
+            await delay(attackSpeed); // Allow animation to complete
+            if (checkBattleEnd()) {
+              shouldBreak = true;
+              break;
+            }
+          }
         } else {
           // No stamina to attack
           setHurtGladiator(null);
@@ -171,12 +189,16 @@ const Arena = () => {
         setEvadedHit(false);
         await delay(200);
         
-        // Check for battle end again after effects are applied
-        if (checkBattleEnd()) break;
+        // Check if we should break out of the inner loop
+        if (shouldBreak || battleEnded) {
+          break;
+        }
       }
       
-      // Final check if battle has ended before continuing the loop
-      if (battleEnded) break;
+      // Check if we should break out of the outer loop
+      if (shouldBreak || battleEnded) {
+        break;
+      }
     }
   };
 

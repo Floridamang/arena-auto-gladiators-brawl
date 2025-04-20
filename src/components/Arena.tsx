@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
 import { Gladiator } from "@/types/gladiator";
-import { calculateDamage, delay, rechargeStamina } from "@/utils/battle";
-import { useToast } from "@/hooks/use-toast";
+import { rechargeStamina } from "@/utils/battle";
+import { checkBattleEnd, processBattleRound } from "@/utils/battleUtils";
 
 const INITIAL_GLADIATORS: [Gladiator, Gladiator] = [
   {
@@ -54,9 +53,7 @@ const Arena = () => {
   const [evadedHit, setEvadedHit] = useState(false);
   const [battleEnded, setBattleEnded] = useState(false);
   const [winner, setWinner] = useState<Gladiator | null>(null);
-  const { toast } = useToast();
 
-  // Recharge stamina over time
   useEffect(() => {
     if (!isFighting) return;
     
@@ -81,121 +78,30 @@ const Arena = () => {
     setWinner(null);
   };
 
-  const checkBattleEnd = () => {
-    if (gladiators[0].health <= 0) {
-      setBattleEnded(true);
-      setIsFighting(false);
-      setWinner(gladiators[1]);
-      toast({
-        title: "Battle Finished!",
-        description: `${gladiators[1].name} is victorious!`,
-      });
-      return true;
-    } else if (gladiators[1].health <= 0) {
-      setBattleEnded(true);
-      setIsFighting(false);
-      setWinner(gladiators[0]);
-      toast({
-        title: "Battle Finished!",
-        description: `${gladiators[0].name} is victorious!`,
-      });
-      return true;
-    }
-    return false;
-  };
-
   const fight = async () => {
     if (isFighting) return;
     setIsFighting(true);
     setBattleEnded(false);
     setWinner(null);
 
-    // Main battle loop
     while (!battleEnded) {
-      // Check for battle end condition first
-      if (checkBattleEnd()) {
+      const checkEnd = () => checkBattleEnd(gladiators, setBattleEnded, setIsFighting, setWinner);
+      
+      if (checkEnd()) {
         setIsFighting(false);
         break;
       }
-      
-      // Calculate attack order based on agility
-      const attackOrder = gladiators[0].agility >= gladiators[1].agility ? [0, 1] : [1, 0];
-      
-      let shouldBreak = false;
-      for (let i of attackOrder) {
-        // Recheck for battle end after each attack
-        if (checkBattleEnd()) {
-          shouldBreak = true;
-          break;
-        }
-        
-        const attacker = i;
-        const defender = 1 - i;
-        
-        // Calculate attack speed based on agility (300-1000ms)
-        const attackSpeed = Math.max(300, 1000 - gladiators[attacker].agility * 50);
-        
-        setAttackingGladiator(attacker);
-        
-        // Calculate damage and check for evade/critical
-        const { damage, isCritical, evaded } = calculateDamage(gladiators[attacker], gladiators[defender]);
-        
-        if (evaded) {
-          setEvadedHit(true);
-          setHurtGladiator(null);
-          setCriticalHit(false);
-        } else if (damage > 0) {
-          setHurtGladiator(defender);
-          setCriticalHit(isCritical);
-          setEvadedHit(false);
-          
-          const newHealth = Math.max(0, gladiators[defender].health - damage);
-          
-          // Deduct stamina cost (10 points per attack)
-          setGladiators(prev => [
-            {
-              ...prev[0],
-              health: defender === 0 ? newHealth : prev[0].health,
-              attackCount: attacker === 0 ? (prev[0].attackCount || 0) + 1 : prev[0].attackCount,
-              stamina: attacker === 0 ? Math.max(0, prev[0].stamina - 10) : prev[0].stamina
-            },
-            {
-              ...prev[1],
-              health: defender === 1 ? newHealth : prev[1].health,
-              attackCount: attacker === 1 ? (prev[1].attackCount || 0) + 1 : prev[1].attackCount,
-              stamina: attacker === 1 ? Math.max(0, prev[1].stamina - 10) : prev[1].stamina
-            }
-          ]);
-          
-          // Immediately check if the battle should end after updating health
-          if (newHealth <= 0) {
-            await delay(attackSpeed); // Allow animation to complete
-            if (checkBattleEnd()) {
-              shouldBreak = true;
-              break;
-            }
-          }
-        } else {
-          // No stamina to attack
-          setHurtGladiator(null);
-          setCriticalHit(false);
-          setEvadedHit(false);
-        }
-        
-        await delay(attackSpeed);
-        setAttackingGladiator(null);
-        setHurtGladiator(null);
-        setCriticalHit(false);
-        setEvadedHit(false);
-        await delay(200);
-        
-        // Check if we should break out of the inner loop
-        if (shouldBreak || battleEnded) {
-          break;
-        }
-      }
-      
-      // Check if we should break out of the outer loop
+
+      const shouldBreak = await processBattleRound(
+        gladiators,
+        setGladiators,
+        setAttackingGladiator,
+        setHurtGladiator,
+        setCriticalHit,
+        setEvadedHit,
+        checkEnd
+      );
+
       if (shouldBreak || battleEnded) {
         break;
       }

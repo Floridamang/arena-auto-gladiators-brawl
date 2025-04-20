@@ -15,7 +15,7 @@ interface GladiatorCardProps {
 
 const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded }: GladiatorCardProps) => {
   return (
-    <div className="relative h-[350px]"> {/* Increased height to accommodate lower SVG */}
+    <div className="relative h-[400px]"> {/* Increased height from 350px to 400px */}
       <div className="absolute top-0 left-0 right-0 p-6 rounded-lg bg-game-light shadow-lg z-10">
         <h3 className="text-2xl font-bold text-game-dark mb-2">{gladiator.name}</h3>
         <div className="flex justify-center gap-2 mb-2">
@@ -69,4 +69,3 @@ const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded
 };
 
 export default GladiatorCard;
-

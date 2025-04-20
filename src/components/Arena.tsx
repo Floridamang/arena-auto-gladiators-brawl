@@ -84,6 +84,7 @@ const Arena = () => {
   const checkBattleEnd = () => {
     if (gladiators[0].health <= 0) {
       setBattleEnded(true);
+      setIsFighting(false);
       setWinner(gladiators[1]);
       toast({
         title: "Battle Finished!",
@@ -92,6 +93,7 @@ const Arena = () => {
       return true;
     } else if (gladiators[1].health <= 0) {
       setBattleEnded(true);
+      setIsFighting(false);
       setWinner(gladiators[0]);
       toast({
         title: "Battle Finished!",
@@ -108,12 +110,17 @@ const Arena = () => {
     setBattleEnded(false);
     setWinner(null);
 
-    battleLoop: while (!battleEnded) {
+    // Continuous battle loop
+    while (true) {
+      // Check for battle end condition first
+      if (checkBattleEnd()) break;
+      
       // Calculate attack order based on agility
       const attackOrder = gladiators[0].agility >= gladiators[1].agility ? [0, 1] : [1, 0];
       
       for (let i of attackOrder) {
-        if (checkBattleEnd()) break battleLoop;
+        // Recheck for battle end after each attack
+        if (checkBattleEnd()) break;
         
         const attacker = i;
         const defender = 1 - i;
@@ -164,11 +171,13 @@ const Arena = () => {
         setEvadedHit(false);
         await delay(200);
         
-        if (checkBattleEnd()) break battleLoop;
+        // Check for battle end again after effects are applied
+        if (checkBattleEnd()) break;
       }
+      
+      // Final check if battle has ended before continuing the loop
+      if (battleEnded) break;
     }
-    
-    setIsFighting(false);
   };
 
   return (

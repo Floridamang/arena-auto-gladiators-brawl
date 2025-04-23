@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
 import { Gladiator } from "@/types/gladiator";
 import { rechargeStamina } from "@/utils/battle";
 import { checkBattleEnd, processBattleRound } from "@/utils/battleUtils";
+import { Square } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 
 const INITIAL_GLADIATORS: [Gladiator, Gladiator] = [
   {
@@ -53,6 +56,14 @@ const Arena = () => {
   const [evadedHit, setEvadedHit] = useState(false);
   const [battleEnded, setBattleEnded] = useState(false);
   const [winner, setWinner] = useState<Gladiator | null>(null);
+  
+  // Use a ref to control the fight loop
+  const isFightingRef = useRef(isFighting);
+  
+  // Update the ref whenever the state changes
+  useEffect(() => {
+    isFightingRef.current = isFighting;
+  }, [isFighting]);
 
   useEffect(() => {
     if (!isFighting) return;
@@ -62,15 +73,19 @@ const Arena = () => {
     
     const interval = setInterval(() => {
       setGladiators(prevGladiators => {
-        // Only recharge stamina, but preserve current health values
+        // Store the current health values to preserve them
+        const currentHealth0 = prevGladiators[0].health;
+        const currentHealth1 = prevGladiators[1].health;
+        
+        // Only recharge stamina, and explicitly set health back to preserved values
         return [
           {
             ...rechargeStamina(prevGladiators[0]),
-            health: prevGladiators[0].health
+            health: currentHealth0 // Explicitly set health to previous value
           },
           {
             ...rechargeStamina(prevGladiators[1]),
-            health: prevGladiators[1].health
+            health: currentHealth1 // Explicitly set health to previous value
           }
         ] as [Gladiator, Gladiator];
       });
@@ -90,6 +105,13 @@ const Arena = () => {
     setWinner(null);
   };
 
+  const stopFight = () => {
+    if (isFighting) {
+      setIsFighting(false);
+      toast.info("Combat stopped");
+    }
+  };
+
   const fight = async () => {
     if (isFighting) return;
     setIsFighting(true);
@@ -99,7 +121,7 @@ const Arena = () => {
     // Store battle ended state in a local variable to prevent race conditions
     let isBattleEnded = false;
 
-    while (!isBattleEnded) {
+    while (!isBattleEnded && isFightingRef.current) {
       const checkEnd = () => {
         const result = checkBattleEnd(gladiators, setBattleEnded, setIsFighting, setWinner);
         isBattleEnded = result;
@@ -120,7 +142,7 @@ const Arena = () => {
         checkEnd
       );
 
-      if (shouldBreak || isBattleEnded) {
+      if (shouldBreak || isBattleEnded || !isFightingRef.current) {
         break;
       }
     }
@@ -158,6 +180,17 @@ const Arena = () => {
         >
           {battleEnded ? "Battle Ended" : isFighting ? "Fighting..." : "Start Battle"}
         </Button>
+        
+        {isFighting && (
+          <Button
+            onClick={stopFight}
+            className="bg-red-500 hover:bg-red-600 text-white"
+            title="Stop Combat"
+          >
+            <Square className="mr-1" /> Stop Combat
+          </Button>
+        )}
+        
         <Button
           onClick={resetBattle}
           variant="outline"

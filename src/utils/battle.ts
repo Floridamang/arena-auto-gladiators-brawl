@@ -1,4 +1,3 @@
-
 import { Gladiator } from "@/types/gladiator";
 
 export const calculateDamage = (attacker: Gladiator, defender: Gladiator) => {
@@ -35,10 +34,12 @@ export const rechargeStamina = (gladiator: Gladiator): Gladiator => {
   // Recharge stamina based on endurance (higher endurance = faster recharge)
   const rechargeAmount = gladiator.endurance * 0.5; // 0.5 stamina per endurance point
   
-  // Only recharge stamina, don't modify health or other properties
+  // Create a new gladiator object with ONLY stamina updated
   return {
     ...gladiator,
-    stamina: Math.min(gladiator.maxStamina, gladiator.stamina + rechargeAmount)
+    stamina: Math.min(gladiator.maxStamina, gladiator.stamina + rechargeAmount),
+    // Explicitly keep the same health to ensure it never changes
+    health: gladiator.health
   };
 };
 

@@ -41,7 +41,7 @@ export const processBattleRound = async (
   const attackOrder = gladiators[0].agility >= gladiators[1].agility ? [0, 1] : [1, 0];
   
   // Keep track of current health values to prevent regeneration
-  let currentHealths = [gladiators[0].health, gladiators[1].health];
+  const currentHealths = [gladiators[0].health, gladiators[1].health];
   
   for (let i of attackOrder) {
     // Check before each attack in case a previous attack ended the battle

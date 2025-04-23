@@ -59,11 +59,16 @@ const Arena = () => {
   
   // Use a ref to control the fight loop
   const isFightingRef = useRef(isFighting);
+  const gladiatorsRef = useRef(gladiators);
   
-  // Update the ref whenever the state changes
+  // Update the refs whenever the state changes
   useEffect(() => {
     isFightingRef.current = isFighting;
   }, [isFighting]);
+
+  useEffect(() => {
+    gladiatorsRef.current = gladiators;
+  }, [gladiators]);
 
   useEffect(() => {
     if (!isFighting) return;
@@ -118,34 +123,42 @@ const Arena = () => {
     setBattleEnded(false);
     setWinner(null);
 
-    // Store battle ended state in a local variable to prevent race conditions
-    let isBattleEnded = false;
-
-    while (!isBattleEnded && isFightingRef.current) {
-      const checkEnd = () => {
-        const result = checkBattleEnd(gladiators, setBattleEnded, setIsFighting, setWinner);
-        isBattleEnded = result;
-        return result;
-      };
-      
-      if (checkEnd()) {
-        break;
+    // Use a local function to run the battle loop
+    const runBattleLoop = async () => {
+      // Store battle ended state in a local variable to prevent race conditions
+      let isBattleEnded = false;
+  
+      while (!isBattleEnded && isFightingRef.current) {
+        const currentGladiators = gladiatorsRef.current;
+        
+        const checkEnd = () => {
+          const result = checkBattleEnd(currentGladiators, setBattleEnded, setIsFighting, setWinner);
+          isBattleEnded = result;
+          return result;
+        };
+        
+        if (checkEnd()) {
+          break;
+        }
+  
+        const shouldBreak = await processBattleRound(
+          currentGladiators,
+          setGladiators,
+          setAttackingGladiator,
+          setHurtGladiator,
+          setCriticalHit,
+          setEvadedHit,
+          checkEnd
+        );
+  
+        if (shouldBreak || isBattleEnded || !isFightingRef.current) {
+          break;
+        }
       }
+    };
 
-      const shouldBreak = await processBattleRound(
-        gladiators,
-        setGladiators,
-        setAttackingGladiator,
-        setHurtGladiator,
-        setCriticalHit,
-        setEvadedHit,
-        checkEnd
-      );
-
-      if (shouldBreak || isBattleEnded || !isFightingRef.current) {
-        break;
-      }
-    }
+    // Start the battle loop
+    runBattleLoop();
   };
 
   return (

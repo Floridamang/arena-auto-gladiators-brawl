@@ -68,6 +68,7 @@ export const processBattleRound = async (
       setEvadedHit(true);
       setHurtGladiator(null);
       setCriticalHit(false);
+      await delay(attackSpeed);
     } else if (damage > 0) {
       setHurtGladiator(defender);
       setCriticalHit(isCritical);
@@ -101,9 +102,13 @@ export const processBattleRound = async (
         await delay(attackSpeed);
         return checkEndCondition();
       }
+      
+      await delay(attackSpeed);
+    } else {
+      // If no damage (not enough stamina), still pause for visual effect
+      await delay(attackSpeed/2);
     }
     
-    await delay(attackSpeed);
     setAttackingGladiator(null);
     setHurtGladiator(null);
     setCriticalHit(false);

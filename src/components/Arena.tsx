@@ -119,9 +119,17 @@ const Arena = () => {
 
   const fight = async () => {
     if (isFighting) return;
+    
+    // Reset states before starting
     setIsFighting(true);
     setBattleEnded(false);
     setWinner(null);
+    setAttackingGladiator(null);
+    setHurtGladiator(null);
+    setCriticalHit(false);
+    setEvadedHit(false);
+    
+    console.log("Starting battle...");
 
     // Use a local function to run the battle loop
     const runBattleLoop = async () => {
@@ -130,6 +138,7 @@ const Arena = () => {
   
       while (!isBattleEnded && isFightingRef.current) {
         const currentGladiators = gladiatorsRef.current;
+        console.log("Battle round with gladiators:", currentGladiators);
         
         const checkEnd = () => {
           const result = checkBattleEnd(currentGladiators, setBattleEnded, setIsFighting, setWinner);
@@ -138,6 +147,7 @@ const Arena = () => {
         };
         
         if (checkEnd()) {
+          console.log("Battle ended due to initial check");
           break;
         }
   
@@ -150,15 +160,23 @@ const Arena = () => {
           setEvadedHit,
           checkEnd
         );
+        
+        console.log("Round complete, shouldBreak:", shouldBreak);
   
         if (shouldBreak || isBattleEnded || !isFightingRef.current) {
+          console.log("Breaking battle loop");
           break;
         }
+        
+        // Small delay between rounds
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
+      
+      console.log("Battle loop finished");
     };
 
     // Start the battle loop
-    runBattleLoop();
+    await runBattleLoop();
   };
 
   return (

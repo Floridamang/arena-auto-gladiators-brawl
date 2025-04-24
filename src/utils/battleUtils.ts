@@ -1,3 +1,4 @@
+
 import { Gladiator } from "@/types/gladiator";
 import { calculateDamage, delay } from "./battle";
 import { toast } from "@/components/ui/sonner";
@@ -31,7 +32,8 @@ export const processBattleRound = async (
   setHurtGladiator: (value: number | null) => void,
   setCriticalHit: (value: boolean) => void,
   setEvadedHit: (value: boolean) => void,
-  checkEndCondition: () => boolean
+  checkEndCondition: () => boolean,
+  setDamageText: (value: {text: string, position: number, type: "normal" | "critical" | "miss"} | null) => void
 ): Promise<boolean> => {
   console.log("Processing battle round with gladiators:", gladiators);
   
@@ -79,12 +81,21 @@ export const processBattleRound = async (
       setEvadedHit(true);
       setHurtGladiator(null);
       setCriticalHit(false);
+      // Show miss notification
+      setDamageText({ text: "MISS", position: defender, type: "miss" });
       await delay(attackSpeed);
     } else if (damage > 0) {
       console.log(`${gladiators[defender].name} takes ${damage} damage${isCritical ? ' (CRITICAL)' : ''}`);
       setHurtGladiator(defender);
       setCriticalHit(isCritical);
       setEvadedHit(false);
+      
+      // Show damage notification
+      setDamageText({ 
+        text: `${damage}${isCritical ? "!" : ""}`, 
+        position: defender, 
+        type: isCritical ? "critical" : "normal" 
+      });
       
       // Prevent negative health by clamping to 0
       const newHealth = Math.max(0, currentHealths[defender] - damage);
@@ -120,9 +131,15 @@ export const processBattleRound = async (
       await delay(attackSpeed);
     } else {
       console.log(`${gladiators[attacker].name} couldn't deal damage (not enough stamina or other issue)`);
+      // Show no stamina notification
+      setDamageText({ text: "NO STAMINA", position: attacker, type: "miss" });
       // If no damage (not enough stamina), still pause for visual effect
       await delay(attackSpeed/2);
     }
+    
+    // Clear damage text after a delay
+    await delay(800);
+    setDamageText(null);
     
     setAttackingGladiator(null);
     setHurtGladiator(null);

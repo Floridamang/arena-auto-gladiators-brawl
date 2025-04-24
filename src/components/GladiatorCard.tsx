@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Gladiator } from "@/types/gladiator";
 import { Progress } from "@/components/ui/progress";
 import GladiatorSvg from "./GladiatorSvg";
 import { Sword, Shield, Zap, Activity, Clock, Heart } from "lucide-react";
+import DamageText from "./DamageText";
 
 interface GladiatorCardProps {
   gladiator: Gladiator;
@@ -11,11 +11,22 @@ interface GladiatorCardProps {
   isHurt: boolean;
   isCriticalHit?: boolean;
   isEvaded?: boolean;
+  damageText?: {
+    text: string;
+    type: "normal" | "critical" | "miss";
+  } | null;
 }
 
-const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded }: GladiatorCardProps) => {
+const GladiatorCard = ({ 
+  gladiator, 
+  isAttacking, 
+  isHurt, 
+  isCriticalHit, 
+  isEvaded,
+  damageText 
+}: GladiatorCardProps) => {
   return (
-    <div className="relative h-[400px]"> {/* Increased height from 350px to 400px */}
+    <div className="relative h-[400px]">
       <div className="absolute top-0 left-0 right-0 p-6 rounded-lg bg-game-light shadow-lg z-10">
         <h3 className="text-2xl font-bold text-game-dark mb-2">{gladiator.name}</h3>
         <div className="flex justify-center gap-2 mb-2">
@@ -56,6 +67,11 @@ const GladiatorCard = ({ gladiator, isAttacking, isHurt, isCriticalHit, isEvaded
         <Progress value={gladiator.health} className="h-2 bg-game-secondary" />
       </div>
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full flex justify-center">
+        {damageText && (
+          <div className="relative">
+            <DamageText text={damageText.text} type={damageText.type} />
+          </div>
+        )}
         <GladiatorSvg
           gladiator={gladiator}
           isAttacking={isAttacking}

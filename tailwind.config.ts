@@ -106,6 +106,26 @@ export default {
           "0%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
           "100%": { transform: "translateY(0)" },
+        },
+        'float-up': {
+          "0%": { transform: "translateY(0)", opacity: "1" },
+          "100%": { transform: "translateY(-20px)", opacity: "0" }
+        },
+        'shake': {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-5px)" },
+          "50%": { transform: "translateX(5px)" },
+          "75%": { transform: "translateX(-5px)" }
+        },
+        'fade-out': {
+          "0%": { opacity: "1" },
+          "100%": { opacity: "0", transform: "translateY(-20px)" }
+        },
+        'evade': {
+          "0%": { transform: "translateX(0)" },
+          "30%": { transform: "translateX(15px)" },
+          "60%": { transform: "translateX(-5px)" },
+          "100%": { transform: "translateX(0)" }
         }
       },
       animation: {
@@ -113,7 +133,11 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'attack-right': 'attack-right 0.5s ease-in-out',
         'attack-left': 'attack-left 0.5s ease-in-out',
-        'take-hit': 'take-hit 0.5s ease-in-out'
+        'take-hit': 'take-hit 0.5s ease-in-out',
+        'float-up': 'float-up 1s ease-out forwards',
+        'shake': 'shake 0.5s ease-in-out',
+        'fade-out': 'fade-out 1s forwards',
+        'evade': 'evade 0.5s ease-in-out'
       }
     }
   },

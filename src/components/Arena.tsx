@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
@@ -56,14 +55,15 @@ const Arena = () => {
   const [evadedHit, setEvadedHit] = useState(false);
   const [battleEnded, setBattleEnded] = useState(false);
   const [winner, setWinner] = useState<Gladiator | null>(null);
+  const [damageText, setDamageText] = useState<{text: string, position: number, type: "normal" | "critical" | "miss"} | null>(null);
   
-  // Use a ref to control the fight loop
   const isFightingRef = useRef(isFighting);
   const gladiatorsRef = useRef(gladiators);
+  const battleInProgressRef = useRef(false);
   
-  // Update the refs whenever the state changes
   useEffect(() => {
     isFightingRef.current = isFighting;
+    console.log("isFighting state changed to:", isFighting);
   }, [isFighting]);
 
   useEffect(() => {
@@ -73,24 +73,21 @@ const Arena = () => {
   useEffect(() => {
     if (!isFighting) return;
     
-    // Only recharge stamina if the battle is ongoing and both gladiators are alive
     if (gladiators[0].health <= 0 || gladiators[1].health <= 0) return;
     
     const interval = setInterval(() => {
       setGladiators(prevGladiators => {
-        // Store the current health values to preserve them
         const currentHealth0 = prevGladiators[0].health;
         const currentHealth1 = prevGladiators[1].health;
         
-        // Only recharge stamina, and explicitly set health back to preserved values
         return [
           {
             ...rechargeStamina(prevGladiators[0]),
-            health: currentHealth0 // Explicitly set health to previous value
+            health: currentHealth0
           },
           {
             ...rechargeStamina(prevGladiators[1]),
-            health: currentHealth1 // Explicitly set health to previous value
+            health: currentHealth1
           }
         ] as [Gladiator, Gladiator];
       });
@@ -108,19 +105,26 @@ const Arena = () => {
     setEvadedHit(false);
     setBattleEnded(false);
     setWinner(null);
+    setDamageText(null);
+    battleInProgressRef.current = false;
   };
 
   const stopFight = () => {
     if (isFighting) {
       setIsFighting(false);
+      battleInProgressRef.current = false;
       toast.info("Combat stopped");
     }
   };
 
   const fight = async () => {
-    if (isFighting) return;
+    if (isFightingRef.current || battleInProgressRef.current) {
+      console.log("Battle already in progress, ignoring start request");
+      return;
+    }
     
-    // Reset states before starting
+    battleInProgressRef.current = true;
+    
     setIsFighting(true);
     setBattleEnded(false);
     setWinner(null);
@@ -128,12 +132,13 @@ const Arena = () => {
     setHurtGladiator(null);
     setCriticalHit(false);
     setEvadedHit(false);
+    setDamageText(null);
     
     console.log("Starting battle...");
 
-    // Use a local function to run the battle loop
     const runBattleLoop = async () => {
-      // Store battle ended state in a local variable to prevent race conditions
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       let isBattleEnded = false;
   
       while (!isBattleEnded && isFightingRef.current) {
@@ -158,7 +163,8 @@ const Arena = () => {
           setHurtGladiator,
           setCriticalHit,
           setEvadedHit,
-          checkEnd
+          checkEnd,
+          setDamageText
         );
         
         console.log("Round complete, shouldBreak:", shouldBreak);
@@ -168,14 +174,13 @@ const Arena = () => {
           break;
         }
         
-        // Small delay between rounds
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       
       console.log("Battle loop finished");
+      battleInProgressRef.current = false;
     };
 
-    // Start the battle loop
     await runBattleLoop();
   };
 
@@ -200,13 +205,15 @@ const Arena = () => {
             isHurt={hurtGladiator === index}
             isCriticalHit={hurtGladiator === index && criticalHit}
             isEvaded={hurtGladiator !== index && attackingGladiator === 1-index && evadedHit}
+            damageText={damageText && damageText.position === index ? 
+              { text: damageText.text, type: damageText.type } : null}
           />
         ))}
       </div>
       <div className="flex justify-center gap-4">
         <Button
           onClick={fight}
-          disabled={isFighting || battleEnded}
+          disabled={isFighting || battleEnded || battleInProgressRef.current}
           className="bg-game-primary hover:bg-game-primary/90 text-white"
         >
           {battleEnded ? "Battle Ended" : isFighting ? "Fighting..." : "Start Battle"}

@@ -11,7 +11,9 @@ const HomePage = () => {
       style={{
         backgroundImage: "url('/lovable-uploads/2c7581e1-7250-4d67-9894-3f83edbdd709.png')",
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        height: '100vh',
+        width: '100vw'
       }}
     >
       <div className="absolute inset-0 bg-black/30" /> {/* Overlay for better readability */}

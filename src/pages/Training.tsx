@@ -3,9 +3,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import GladiatorCard from "@/components/GladiatorCard";
+import { Gladiator, GladiatorTrait } from "@/types/gladiator";
 
 const Training = () => {
-  const marcus = {
+  const marcusTrait: GladiatorTrait = {
+    name: "resentful",
+    description: "Does double damage below 10% health"
+  };
+
+  const marcus: Gladiator = {
     id: "1",
     name: "Marcus",
     attack: 15,
@@ -17,10 +23,7 @@ const Training = () => {
     stamina: 100,
     maxStamina: 100,
     endurance: 15,
-    traits: [{
-      name: "resentful",
-      description: "Does double damage below 10% health"
-    }],
+    traits: [marcusTrait],
     attackCount: 0
   };
 

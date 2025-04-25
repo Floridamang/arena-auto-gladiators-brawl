@@ -7,11 +7,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 const HomePage = () => {
   return (
     <div 
-      className="min-h-screen p-8 relative"
+      className="min-h-screen relative"
       style={{
-        backgroundImage: "url('/lovable-uploads/2c7581e1-7250-4d67-9894-3f83edbdd709.png')",
+        backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         height: '100vh',
         width: '100vw',
         margin: 0,
@@ -34,9 +35,9 @@ const HomePage = () => {
         </div>
 
         {/* Navigation Grid - Positioned according to the villa layout */}
-        <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto mt-32">
-          {/* Top Row - Sleep and Training */}
-          <div className="col-start-1 col-span-2 flex justify-between">
+        <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto mt-12">
+          {/* Top Row - Sleep area near the mansion/villa */}
+          <div className="col-start-1 justify-self-start">
             <Link to="/rest" className="w-64">
               <Card className="bg-white/90 hover:bg-white transition-colors">
                 <CardHeader>
@@ -50,7 +51,10 @@ const HomePage = () => {
                 </CardContent>
               </Card>
             </Link>
+          </div>
 
+          {/* Top Right - Training camp near the training area with gladiators */}
+          <div className="col-start-2 justify-self-end">
             <Link to="/training" className="w-64">
               <Card className="bg-white/90 hover:bg-white transition-colors">
                 <CardHeader>
@@ -66,7 +70,7 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {/* Bottom Row - Arena and Market */}
+          {/* Bottom Row - Arena and Market positioned toward the town in the distance */}
           <div className="col-span-2 flex justify-center gap-6 mt-32">
             <Link to="/arena" className="w-64">
               <Card className="bg-white/90 hover:bg-white transition-colors">

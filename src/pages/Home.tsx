@@ -3,23 +3,41 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Sword, GraduationCap, Store, Bed } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useEffect, useState } from "react";
 
 const HomePage = () => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Preload the image to check if it loads correctly
+    const img = new Image();
+    img.src = '/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png';
+    img.onload = () => {
+      console.log("Background image loaded successfully");
+      setImageLoaded(true);
+    };
+    img.onerror = () => {
+      console.error("Failed to load background image");
+    };
+  }, []);
+
   return (
     <div 
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        height: '100vh',
-        width: '100vw',
-        margin: 0,
-        padding: 0
-      }}
+      className="min-h-screen relative bg-game-dark"
     >
-      <div className="absolute inset-0 bg-black/30" /> {/* Overlay for better readability */}
+      {/* Background div with absolute positioning */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 1
+        }}
+      />
+      
+      <div className="absolute inset-0 bg-black/30 z-0" /> {/* Overlay for better readability */}
       
       <div className="relative z-10 p-8">
         {/* Character Info Section - Top Left */}
@@ -102,6 +120,12 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {!imageLoaded && (
+        <div className="absolute bottom-4 right-4 bg-game-primary text-white px-4 py-2 rounded-md z-20">
+          Background image not loaded. Check console for details.
+        </div>
+      )}
     </div>
   );
 };

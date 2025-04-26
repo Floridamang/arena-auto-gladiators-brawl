@@ -1,203 +1,74 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { Gladiator } from "@/types/gladiator";
+
+import React, { createContext, useContext, useReducer } from "react";
 import { toast } from "@/components/ui/sonner";
+import { gameReducer } from "@/reducers/gameReducer";
+import { initialGameState } from "./initialState";
+import { GameState } from "@/types/gameState";
+import { Gladiator } from "@/types/gladiator";
 
-// Define the day cycle types
-type DayCycle = "morning" | "noon" | "evening" | "night";
-
-// Define the game state interface
-interface GameState {
-  dayCycle: DayCycle;
-  playerGladiator: Gladiator;
-  gold: number;
+interface GameContextType extends GameState {
   advanceCycle: () => void;
   resetToMorning: () => void;
   addExperiencePoints: (xp: number) => void;
   levelUp: () => void;
-  allocateSkillPoint: (attribute: "strength" | "agility" | "endurance" | "maxStamina", value: number) => void;
+  allocateSkillPoint: (attribute: keyof Pick<Gladiator, "strength" | "agility" | "endurance" | "maxStamina">, value: number) => void;
   resetSkillPoints: () => void;
-  availableSkillPoints: number;
-  tempAttributes: {
-    strength: number;
-    agility: number;
-    endurance: number;
-    maxStamina: number;
-  };
 }
 
-const initialPlayerGladiator: Gladiator = {
-  id: "player",
-  name: "Septimus",
-  attack: 15,
-  defense: 10,
-  health: 100,
-  strength: 18,
-  agility: 12,
-  stamina: 100,
-  maxStamina: 100,
-  endurance: 15,
-  level: 1,
-  experience: 0,
-  experienceToNextLevel: 100,
-  wins: 0,
-  traits: [{
-    name: "resentful",
-    description: "Does double damage below 10% health"
-  }],
-  attackCount: 0
-};
-
-const GameContext = createContext<GameState | undefined>(undefined);
+const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [dayCycle, setDayCycle] = useState<DayCycle>("morning");
-  const [playerGladiator, setPlayerGladiator] = useState<Gladiator>(initialPlayerGladiator);
-  const [availableSkillPoints, setAvailableSkillPoints] = useState<number>(0);
-  const [tempAttributes, setTempAttributes] = useState({
-    strength: 0,
-    agility: 0,
-    endurance: 0,
-    maxStamina: 0,
-  });
-  const [gold, setGold] = useState<number>(500);
+  const [state, dispatch] = useReducer(gameReducer, initialGameState);
 
-  // Advance the day cycle (morning -> noon -> evening -> night -> morning)
   const advanceCycle = () => {
-    setDayCycle(prevCycle => {
-      switch (prevCycle) {
-        case "morning": return "noon";
-        case "noon": return "evening";
-        case "evening": return "night";
-        case "night": return "morning";
-        default: return "morning";
-      }
-    });
+    dispatch({ type: "ADVANCE_CYCLE" });
   };
 
-  // Reset to morning (used when sleeping)
   const resetToMorning = () => {
-    setDayCycle("morning");
+    dispatch({ type: "RESET_TO_MORNING" });
   };
 
-  // Add experience points and check for level up
   const addExperiencePoints = (xp: number) => {
-    setPlayerGladiator(prev => {
-      const newExperience = prev.experience + xp;
-      const experienceNeeded = prev.experienceToNextLevel;
-      
-      if (newExperience >= experienceNeeded) {
-        // Level up occurred
-        const newLevel = prev.level + 1;
-        
-        // Set skill points
-        setAvailableSkillPoints(3);
-        
-        toast.success(`Level up! You can now allocate skill points.`);
-        
-        return {
-          ...prev,
-          experience: newExperience - experienceNeeded,
-          level: newLevel,
-          experienceToNextLevel: calculateNextLevelXp(newLevel),
-        };
-      }
-      
-      return {
-        ...prev,
-        experience: newExperience,
-      };
-    });
-  };
-
-  // Calculate experience needed for next level
-  const calculateNextLevelXp = (level: number): number => {
-    if (level <= 3) {
-      return level * 100; // Levels 1-3: 100, 200, 300
-    } else {
-      // From level 4 onwards, 10% increase per level
-      return Math.floor(300 * Math.pow(1.1, level - 3));
+    dispatch({ type: "ADD_EXPERIENCE", payload: xp });
+    
+    // Check if leveled up by comparing current state with next state
+    const currentLevel = state.playerGladiator.level;
+    if (state.playerGladiator.experience + xp >= state.playerGladiator.experienceToNextLevel) {
+      toast.success(`Level up! You can now allocate skill points.`);
     }
   };
 
-  // Level up the gladiator
   const levelUp = () => {
     // Verify there are actually points allocated
-    if (tempAttributes.strength === 0 && 
-        tempAttributes.agility === 0 && 
-        tempAttributes.endurance === 0 && 
-        tempAttributes.maxStamina === 0) {
+    if (Object.values(state.tempAttributes).every(v => v === 0)) {
       toast.error("You must allocate at least one skill point");
       return;
     }
     
-    // Apply the temporary attributes to the gladiator
-    setPlayerGladiator(prev => ({
-      ...prev,
-      strength: prev.strength + tempAttributes.strength,
-      agility: prev.agility + tempAttributes.agility,
-      endurance: prev.endurance + tempAttributes.endurance,
-      maxStamina: prev.maxStamina + tempAttributes.maxStamina,
-      stamina: prev.stamina + tempAttributes.maxStamina, // Also increase current stamina
-    }));
-    
-    // Reset skill points and temp attributes
-    setAvailableSkillPoints(0);
-    setTempAttributes({
-      strength: 0,
-      agility: 0,
-      endurance: 0,
-      maxStamina: 0
-    });
-    
+    dispatch({ type: "LEVEL_UP" });
     toast.success("Skills improved!");
   };
 
-  // Allocate skill point to an attribute
-  const allocateSkillPoint = (attribute: "strength" | "agility" | "endurance" | "maxStamina", value: number) => {
-    // Check if we have points to allocate or if we're removing points
-    if ((value > 0 && availableSkillPoints <= 0) || 
-        (value < 0 && tempAttributes[attribute] <= 0)) {
-      return;
-    }
-    
-    setTempAttributes(prev => ({
-      ...prev,
-      [attribute]: Math.max(0, prev[attribute] + value)
-    }));
-    
-    setAvailableSkillPoints(prev => prev - value);
+  const allocateSkillPoint = (
+    attribute: keyof Pick<Gladiator, "strength" | "agility" | "endurance" | "maxStamina">, 
+    value: number
+  ) => {
+    dispatch({ type: "ALLOCATE_SKILL_POINT", payload: { attribute, value } });
   };
 
-  // Reset skill points allocation
   const resetSkillPoints = () => {
-    setAvailableSkillPoints(prev => prev + 
-      tempAttributes.strength + 
-      tempAttributes.agility + 
-      tempAttributes.endurance + 
-      tempAttributes.maxStamina
-    );
-    
-    setTempAttributes({
-      strength: 0,
-      agility: 0,
-      endurance: 0,
-      maxStamina: 0
-    });
+    dispatch({ type: "RESET_SKILL_POINTS" });
   };
 
   return (
     <GameContext.Provider value={{
-      dayCycle,
-      playerGladiator,
-      gold,
+      ...state,
       advanceCycle,
       resetToMorning,
       addExperiencePoints,
       levelUp,
       allocateSkillPoint,
       resetSkillPoints,
-      availableSkillPoints,
-      tempAttributes
     }}>
       {children}
     </GameContext.Provider>

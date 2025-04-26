@@ -1,4 +1,3 @@
-
 export interface Gladiator {
   id: string;
   name: string;
@@ -22,4 +21,9 @@ export interface Gladiator {
 export interface GladiatorTrait {
   name: "bold" | "resentful";
   description: string;
+}
+
+export interface PurchasableGladiator extends Gladiator {
+  cost: number;
+  image: string;
 }

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Gladiator } from "@/types/gladiator";
 import { toast } from "@/components/ui/sonner";
@@ -10,6 +9,7 @@ type DayCycle = "morning" | "noon" | "evening" | "night";
 interface GameState {
   dayCycle: DayCycle;
   playerGladiator: Gladiator;
+  gold: number;
   advanceCycle: () => void;
   resetToMorning: () => void;
   addExperiencePoints: (xp: number) => void;
@@ -59,6 +59,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     endurance: 0,
     maxStamina: 0,
   });
+  const [gold, setGold] = useState<number>(500);
 
   // Advance the day cycle (morning -> noon -> evening -> night -> morning)
   const advanceCycle = () => {
@@ -188,6 +189,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <GameContext.Provider value={{
       dayCycle,
       playerGladiator,
+      gold,
       advanceCycle,
       resetToMorning,
       addExperiencePoints,

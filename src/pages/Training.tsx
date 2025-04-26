@@ -187,7 +187,7 @@ const Training = () => {
               <Button 
                 onClick={levelUp} 
                 disabled={
-                  availableSkillPoints === 3 || 
+                  availableSkillPoints === 3 || // All points still available
                   (tempAttributes.strength === 0 && 
                    tempAttributes.agility === 0 && 
                    tempAttributes.endurance === 0 && 
@@ -196,6 +196,19 @@ const Training = () => {
               >
                 Confirm
               </Button>
+            </div>
+          </div>
+        )}
+        
+        {availableSkillPoints === 0 && (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold text-game-dark mb-4">Training</h2>
+            <p className="text-gray-600">
+              Your gladiator is currently at level {playerGladiator.level}.
+              Win more battles to gain experience and level up.
+            </p>
+            <div className="mt-4 bg-game-light/50 p-3 rounded-md">
+              <p>Current XP: {playerGladiator.experience}/{playerGladiator.experienceToNextLevel}</p>
             </div>
           </div>
         )}

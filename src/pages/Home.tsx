@@ -1,12 +1,24 @@
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Sword, GraduationCap, Store, Bed, Sun, SunMedium, Moon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useGame } from "@/context/GameContext";
+import { useEffect, useState } from "react";
 
 const HomePage = () => {
   const { dayCycle, playerGladiator } = useGame();
+  const [bgLoaded, setBgLoaded] = useState(false);
+  
+  useEffect(() => {
+    // Preload background image
+    const img = new Image();
+    img.src = "/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png";
+    img.onload = () => setBgLoaded(true);
+    img.onerror = (e) => {
+      console.error("Background image failed to load:", e);
+      setBgLoaded(false);
+    };
+  }, []);
   
   const getCycleIcon = () => {
     switch (dayCycle) {
@@ -21,10 +33,18 @@ const HomePage = () => {
   return (
     <div className="min-h-screen relative bg-game-dark">
       {/* Background div with absolute positioning */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')" }}
-      />
+      {bgLoaded ? (
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          style={{ 
+            backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')"
+          }}
+        />
+      ) : (
+        <div className="absolute inset-0 z-0 bg-game-dark flex items-center justify-center text-white">
+          Background image not loaded. Check console for details.
+        </div>
+      )}
       
       <div className="absolute inset-0 bg-black/30 z-0" /> {/* Overlay for better readability */}
       

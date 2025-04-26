@@ -42,6 +42,7 @@ const Arena = () => {
     opponent
   ]);
   
+  // Rest of component state
   const [isFighting, setIsFighting] = useState(false);
   const [attackingGladiator, setAttackingGladiator] = useState<number | null>(null);
   const [hurtGladiator, setHurtGladiator] = useState<number | null>(null);
@@ -50,6 +51,7 @@ const Arena = () => {
   const [battleEnded, setBattleEnded] = useState(false);
   const [winner, setWinner] = useState<Gladiator | null>(null);
   const [damageText, setDamageText] = useState<{text: string, position: number, type: "normal" | "critical" | "miss"} | null>(null);
+  const [xpAwarded, setXpAwarded] = useState(false);
   
   const isFightingRef = useRef(isFighting);
   const gladiatorsRef = useRef(gladiators);
@@ -109,16 +111,14 @@ const Arena = () => {
 
   // Handle battle results (award XP)
   useEffect(() => {
-    if (battleEnded && winner) {
-      // If player won
-      if (winner.id === playerGladiator.id) {
-        // Award XP - 100 XP for winning
-        const xpReward = 100;
-        addExperiencePoints(xpReward);
-        toast.success(`Victory! Gained ${xpReward} experience.`);
-      }
+    if (battleEnded && winner && winner.id === playerGladiator.id && !xpAwarded) {
+      // Award XP - 100 XP for winning
+      const xpReward = 100;
+      addExperiencePoints(xpReward);
+      toast.success(`Victory! Gained ${xpReward} experience.`);
+      setXpAwarded(true); // Mark XP as awarded to prevent multiple awards
     }
-  }, [battleEnded, winner, playerGladiator.id, addExperiencePoints]);
+  }, [battleEnded, winner, playerGladiator.id, addExperiencePoints, xpAwarded]);
 
   const resetBattle = () => {
     const newOpponent = generateOpponent();
@@ -137,6 +137,7 @@ const Arena = () => {
     setBattleEnded(false);
     setWinner(null);
     setDamageText(null);
+    setXpAwarded(false); // Reset XP awarded flag
     battleInProgressRef.current = false;
   };
 
@@ -164,6 +165,7 @@ const Arena = () => {
     setCriticalHit(false);
     setEvadedHit(false);
     setDamageText(null);
+    setXpAwarded(false); // Reset XP awarded flag for new battle
     
     console.log("Starting battle...");
 
@@ -231,6 +233,11 @@ const Arena = () => {
           <h2 className="text-2xl font-bold text-game-primary">
             {winner.name} is victorious!
           </h2>
+          <Link to="/" className="mt-4 inline-block">
+            <Button className="bg-game-primary hover:bg-game-primary/90">
+              Return to Home
+            </Button>
+          </Link>
         </div>
       )}
       

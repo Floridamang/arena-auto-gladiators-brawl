@@ -85,12 +85,19 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const experienceNeeded = prev.experienceToNextLevel;
       
       if (newExperience >= experienceNeeded) {
-        toast.success("Level up! You can now allocate skill points.");
+        // Level up occurred
+        const newLevel = prev.level + 1;
+        
+        // Set skill points
+        setAvailableSkillPoints(3);
+        
+        toast.success(`Level up! You can now allocate skill points.`);
+        
         return {
           ...prev,
           experience: newExperience - experienceNeeded,
-          level: prev.level + 1,
-          experienceToNextLevel: calculateNextLevelXp(prev.level + 1),
+          level: newLevel,
+          experienceToNextLevel: calculateNextLevelXp(newLevel),
         };
       }
       
@@ -111,19 +118,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Effect to update skill points when level changes
-  useEffect(() => {
-    const prevLevel = playerGladiator.level - 1;
-    const currentSkillPoints = prevLevel * 3;
-    
-    // Check if we need to add skill points (level up happened)
-    if (availableSkillPoints < currentSkillPoints) {
-      setAvailableSkillPoints(3);
-    }
-  }, [playerGladiator.level, availableSkillPoints]);
-
   // Level up the gladiator
   const levelUp = () => {
+    // Verify there are actually points allocated
+    if (tempAttributes.strength === 0 && 
+        tempAttributes.agility === 0 && 
+        tempAttributes.endurance === 0 && 
+        tempAttributes.maxStamina === 0) {
+      toast.error("You must allocate at least one skill point");
+      return;
+    }
+    
     // Apply the temporary attributes to the gladiator
     setPlayerGladiator(prev => ({
       ...prev,

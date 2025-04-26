@@ -1,40 +1,29 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Sword, GraduationCap, Store, Bed } from "lucide-react";
+import { Sword, GraduationCap, Store, Bed, Sun, SunMedium, Moon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useGame } from "@/context/GameContext";
 
 const HomePage = () => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  useEffect(() => {
-    // Preload the image to check if it loads correctly
-    const img = new Image();
-    img.src = '/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png';
-    img.onload = () => {
-      console.log("Background image loaded successfully");
-      setImageLoaded(true);
-    };
-    img.onerror = () => {
-      console.error("Failed to load background image");
-    };
-  }, []);
+  const { dayCycle, playerGladiator } = useGame();
+  
+  const getCycleIcon = () => {
+    switch (dayCycle) {
+      case "morning": return <Sun className="h-5 w-5 text-game-secondary" />;
+      case "noon": return <SunMedium className="h-5 w-5 text-game-secondary" />;
+      case "evening": return <Sun className="h-5 w-5 text-game-accent" />;
+      case "night": return <Moon className="h-5 w-5 text-white" />;
+      default: return <Sun className="h-5 w-5 text-game-secondary" />;
+    }
+  };
 
   return (
-    <div 
-      className="min-h-screen relative bg-game-dark"
-    >
+    <div className="min-h-screen relative bg-game-dark">
       {/* Background div with absolute positioning */}
       <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          opacity: 1
-        }}
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')" }}
       />
       
       <div className="absolute inset-0 bg-black/30 z-0" /> {/* Overlay for better readability */}
@@ -49,7 +38,19 @@ const HomePage = () => {
           <div className="text-white">
             <h1 className="text-4xl font-bold drop-shadow-lg">Septimus Gregorious</h1>
             <h2 className="text-2xl text-game-secondary drop-shadow-md">House Gregorious</h2>
+            <div className="mt-2 text-xl">
+              <span className="mr-2">Level {playerGladiator.level}</span>
+              <span className="text-game-secondary">
+                {playerGladiator.experience}/{playerGladiator.experienceToNextLevel} XP
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Day Cycle Indicator - Top Center */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-game-dark/80 rounded-lg p-2 px-4 text-white flex items-center gap-2">
+          {getCycleIcon()}
+          <span className="font-semibold capitalize">{dayCycle}</span>
         </div>
 
         {/* Navigation Grid - Positioned according to the villa layout */}
@@ -120,12 +121,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-
-      {!imageLoaded && (
-        <div className="absolute bottom-4 right-4 bg-game-primary text-white px-4 py-2 rounded-md z-20">
-          Background image not loaded. Check console for details.
-        </div>
-      )}
     </div>
   );
 };

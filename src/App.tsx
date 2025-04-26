@@ -10,24 +10,27 @@ import Home from "./pages/Home";
 import Training from "./pages/Training";
 import Market from "./pages/Market";
 import Rest from "./pages/Rest";
+import { GameProvider } from "./context/GameContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/arena" element={<Index />} />
-          <Route path="/training" element={<Training />} />
-          <Route path="/market" element={<Market />} />
-          <Route path="/rest" element={<Rest />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <GameProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/arena" element={<Index />} />
+            <Route path="/training" element={<Training />} />
+            <Route path="/market" element={<Market />} />
+            <Route path="/rest" element={<Rest />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </GameProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

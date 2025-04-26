@@ -13,6 +13,10 @@ export interface Gladiator {
   stamina: number;
   maxStamina: number;
   endurance: number;
+  level?: number;
+  experience?: number;
+  experienceToNextLevel?: number;
+  wins?: number;
 }
 
 export interface GladiatorTrait {

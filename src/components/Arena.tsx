@@ -1,53 +1,47 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import GladiatorCard from "./GladiatorCard";
 import { Gladiator } from "@/types/gladiator";
 import { rechargeStamina } from "@/utils/battle";
 import { checkBattleEnd, processBattleRound } from "@/utils/battleUtils";
-import { Square } from "lucide-react";
+import { Square, ArrowLeft } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
-
-const INITIAL_GLADIATORS: [Gladiator, Gladiator] = [
-  {
-    id: "1",
-    name: "Marcus",
-    attack: 15,
-    defense: 10,
-    health: 100,
-    isLeft: true,
-    strength: 18,
-    agility: 12,
-    stamina: 100,
-    maxStamina: 100,
-    endurance: 15,
-    traits: [{
-      name: "resentful",
-      description: "Does double damage below 10% health"
-    }],
-    attackCount: 0
-  },
-  {
-    id: "2",
-    name: "Brutus",
-    attack: 12,
-    defense: 8,
-    health: 100,
-    isLeft: false,
-    strength: 20,
-    agility: 10,
-    stamina: 100,
-    maxStamina: 100,
-    endurance: 12,
-    traits: [{
-      name: "bold",
-      description: "First two attacks are critical hits"
-    }],
-    attackCount: 0
-  },
-];
+import { Link } from "react-router-dom";
+import { useGame } from "@/context/GameContext";
 
 const Arena = () => {
-  const [gladiators, setGladiators] = useState<[Gladiator, Gladiator]>(INITIAL_GLADIATORS);
+  const { playerGladiator, addExperiencePoints } = useGame();
+  
+  const generateOpponent = (): Gladiator => {
+    const level = playerGladiator.level || 1;
+    return {
+      id: "opponent",
+      name: "Brutus",
+      attack: 12 + (level - 1) * 2,
+      defense: 8 + (level - 1),
+      health: 100 + (level - 1) * 10,
+      isLeft: false,
+      strength: 20 + (level - 1) * 2,
+      agility: 10 + (level - 1),
+      stamina: 100 + (level - 1) * 5,
+      maxStamina: 100 + (level - 1) * 5,
+      endurance: 12 + (level - 1),
+      level,
+      traits: [{
+        name: "bold",
+        description: "First two attacks are critical hits"
+      }],
+      attackCount: 0
+    }
+  };
+
+  const [opponent, setOpponent] = useState<Gladiator>(generateOpponent());
+  const [gladiators, setGladiators] = useState<[Gladiator, Gladiator]>([
+    { ...playerGladiator, isLeft: true, attackCount: 0, health: playerGladiator.health },
+    opponent
+  ]);
+  
   const [isFighting, setIsFighting] = useState(false);
   const [attackingGladiator, setAttackingGladiator] = useState<number | null>(null);
   const [hurtGladiator, setHurtGladiator] = useState<number | null>(null);
@@ -61,6 +55,7 @@ const Arena = () => {
   const gladiatorsRef = useRef(gladiators);
   const battleInProgressRef = useRef(false);
   
+  // Update refs when state changes
   useEffect(() => {
     isFightingRef.current = isFighting;
     console.log("isFighting state changed to:", isFighting);
@@ -70,6 +65,22 @@ const Arena = () => {
     gladiatorsRef.current = gladiators;
   }, [gladiators]);
 
+  // Update the gladiators array when playerGladiator changes
+  useEffect(() => {
+    setGladiators(prev => [
+      { ...playerGladiator, isLeft: true, attackCount: 0, health: playerGladiator.health },
+      prev[1]
+    ]);
+  }, [playerGladiator]);
+
+  // Update opponent when player level changes
+  useEffect(() => {
+    const newOpponent = generateOpponent();
+    setOpponent(newOpponent);
+    setGladiators(prev => [prev[0], newOpponent]);
+  }, [playerGladiator.level]);
+
+  // Stamina regeneration
   useEffect(() => {
     if (!isFighting) return;
     
@@ -96,8 +107,28 @@ const Arena = () => {
     return () => clearInterval(interval);
   }, [isFighting, gladiators]);
 
+  // Handle battle results (award XP)
+  useEffect(() => {
+    if (battleEnded && winner) {
+      // If player won
+      if (winner.id === playerGladiator.id) {
+        // Award XP - 100 XP for winning
+        const xpReward = 100;
+        addExperiencePoints(xpReward);
+        toast.success(`Victory! Gained ${xpReward} experience.`);
+      }
+    }
+  }, [battleEnded, winner, playerGladiator.id, addExperiencePoints]);
+
   const resetBattle = () => {
-    setGladiators(INITIAL_GLADIATORS);
+    const newOpponent = generateOpponent();
+    setOpponent(newOpponent);
+    
+    setGladiators([
+      { ...playerGladiator, isLeft: true, attackCount: 0, health: playerGladiator.health },
+      newOpponent
+    ]);
+    
     setIsFighting(false);
     setAttackingGladiator(null);
     setHurtGladiator(null);
@@ -186,7 +217,14 @@ const Arena = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center text-game-dark mb-8">Gladiator Arena</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold text-center text-game-dark">Gladiator Arena</h1>
+        <Link to="/">
+          <Button variant="outline" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" /> Return Home
+          </Button>
+        </Link>
+      </div>
       
       {battleEnded && winner && (
         <div className="bg-game-primary/10 p-4 rounded-lg mb-6 text-center">
@@ -213,10 +251,10 @@ const Arena = () => {
       <div className="flex justify-center gap-4">
         <Button
           onClick={fight}
-          disabled={isFighting || battleEnded || battleInProgressRef.current}
+          disabled={isFighting || battleInProgressRef.current}
           className="bg-game-primary hover:bg-game-primary/90 text-white"
         >
-          {battleEnded ? "Battle Ended" : isFighting ? "Fighting..." : "Start Battle"}
+          {battleEnded ? "New Battle" : isFighting ? "Fighting..." : "Start Battle"}
         </Button>
         
         {isFighting && (

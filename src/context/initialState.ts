@@ -1,5 +1,6 @@
 
 import { GameState } from "@/types/gameState";
+import { GladiatorTrait } from "@/types/gladiator";
 
 export const initialPlayerGladiator = {
   id: "player",
@@ -17,7 +18,7 @@ export const initialPlayerGladiator = {
   experienceToNextLevel: 100,
   wins: 0,
   traits: [{
-    name: "resentful",
+    name: "resentful" as const,
     description: "Does double damage below 10% health"
   }],
   attackCount: 0

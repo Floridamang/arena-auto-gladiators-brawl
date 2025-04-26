@@ -1,3 +1,4 @@
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Sword, GraduationCap, Store, Bed, Sun, SunMedium, Moon } from "lucide-react";
@@ -12,7 +13,7 @@ const HomePage = () => {
   useEffect(() => {
     // Preload background image
     const img = new Image();
-    img.src = "/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png";
+    img.src = "/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg";
     img.onload = () => setBgLoaded(true);
     img.onerror = (e) => {
       console.error("Background image failed to load:", e);
@@ -37,7 +38,7 @@ const HomePage = () => {
         <div 
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{ 
-            backgroundImage: "url('/lovable-uploads/558cf441-f28f-4973-9408-42fa02f880d8.png')"
+            backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')"
           }}
         />
       ) : (

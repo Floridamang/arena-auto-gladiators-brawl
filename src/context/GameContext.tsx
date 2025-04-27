@@ -13,6 +13,9 @@ interface GameContextType extends GameState {
   levelUp: () => void;
   allocateSkillPoint: (attribute: keyof Pick<Gladiator, "strength" | "agility" | "endurance" | "maxStamina">, value: number) => void;
   resetSkillPoints: () => void;
+  addGladiator: (gladiator: Gladiator) => void;
+  updateGladiator: (gladiator: Gladiator) => void;
+  selectActiveGladiator: (id: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -59,6 +62,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetSkillPoints = () => {
     dispatch({ type: "RESET_SKILL_POINTS" });
   };
+  
+  const addGladiator = (gladiator: Gladiator) => {
+    dispatch({ type: "ADD_GLADIATOR", payload: gladiator });
+  };
+  
+  const updateGladiator = (gladiator: Gladiator) => {
+    dispatch({ type: "UPDATE_GLADIATOR", payload: gladiator });
+  };
+  
+  const selectActiveGladiator = (id: string) => {
+    dispatch({ type: "SELECT_ACTIVE_GLADIATOR", payload: id });
+  };
 
   return (
     <GameContext.Provider value={{
@@ -69,6 +84,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       levelUp,
       allocateSkillPoint,
       resetSkillPoints,
+      addGladiator,
+      updateGladiator,
+      selectActiveGladiator,
     }}>
       {children}
     </GameContext.Provider>

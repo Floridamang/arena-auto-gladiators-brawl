@@ -11,14 +11,8 @@ const HomePage = () => {
   const [bgLoaded, setBgLoaded] = useState(false);
   
   useEffect(() => {
-    // Preload background image
-    const img = new Image();
-    img.src = "/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg";
-    img.onload = () => setBgLoaded(true);
-    img.onerror = (e) => {
-      console.error("Background image failed to load:", e);
-      setBgLoaded(false);
-    };
+    // Try a direct div with background-image instead of preloading
+    setBgLoaded(true);
   }, []);
   
   const getCycleIcon = () => {
@@ -34,18 +28,14 @@ const HomePage = () => {
   return (
     <div className="min-h-screen relative bg-game-dark">
       {/* Background div with absolute positioning */}
-      {bgLoaded ? (
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')"
-          }}
-        />
-      ) : (
-        <div className="absolute inset-0 z-0 bg-game-dark flex items-center justify-center text-white">
-          Background image not loaded. Check console for details.
-        </div>
-      )}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')",
+          opacity: bgLoaded ? 1 : 0,
+          transition: "opacity 0.5s ease-in-out"
+        }}
+      />
       
       <div className="absolute inset-0 bg-black/30 z-0" /> {/* Overlay for better readability */}
       

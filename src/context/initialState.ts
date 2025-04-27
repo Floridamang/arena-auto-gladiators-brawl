@@ -24,9 +24,23 @@ export const initialPlayerGladiator = {
   attackCount: 0
 };
 
+// Roman names from around 50BC
+export const romanNames = [
+  "Brutus", "Marcus", "Julius", "Gaius", "Lucius",
+  "Titus", "Quintus", "Publius", "Servius", "Appius",
+  "Decimus", "Aulus", "Numerius", "Manius", "Spurius",
+  "Sextus", "Tiberius", "Valerius", "Decius", "Flavius"
+];
+
+export const getRandomRomanName = () => {
+  return romanNames[Math.floor(Math.random() * romanNames.length)];
+};
+
 export const initialGameState: GameState = {
   dayCycle: "morning",
   playerGladiator: initialPlayerGladiator,
+  ownedGladiators: [initialPlayerGladiator],
+  activeGladiatorId: initialPlayerGladiator.id,
   gold: 500,
   availableSkillPoints: 0,
   tempAttributes: {

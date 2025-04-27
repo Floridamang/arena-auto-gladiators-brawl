@@ -9,15 +9,22 @@ import { Square, ArrowLeft } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Link } from "react-router-dom";
 import { useGame } from "@/context/GameContext";
+import GladiatorSelector from "./GladiatorSelector";
+import { getRandomRomanName } from "@/context/initialState";
 
 const Arena = () => {
-  const { playerGladiator, addExperiencePoints } = useGame();
+  const { playerGladiator, addExperiencePoints, ownedGladiators } = useGame();
   
-  const generateOpponent = (): Gladiator => {
+  const generateOpponent = (defeatPrevious: boolean = false): Gladiator => {
     const level = playerGladiator.level || 1;
+    // Generate a random name, ensuring it's different from the previous one if defeating
+    const name = defeatPrevious ? 
+      getRandomRomanName() : 
+      "Brutus";
+      
     return {
       id: "opponent",
-      name: "Brutus",
+      name,
       attack: 12 + (level - 1) * 2,
       defense: 8 + (level - 1),
       health: 100 + (level - 1) * 10,
@@ -29,16 +36,17 @@ const Arena = () => {
       endurance: 12 + (level - 1),
       level,
       traits: [{
-        name: "bold",
+        name: "bold" as const,
         description: "First two attacks are critical hits"
       }],
       attackCount: 0
-    }
+    };
   };
 
   const [opponent, setOpponent] = useState<Gladiator>(generateOpponent());
+  const [selectedGladiator, setSelectedGladiator] = useState<Gladiator>(playerGladiator);
   const [gladiators, setGladiators] = useState<[Gladiator, Gladiator]>([
-    { ...playerGladiator, isLeft: true, attackCount: 0, health: playerGladiator.health },
+    { ...selectedGladiator, isLeft: true, attackCount: 0, health: selectedGladiator.health },
     opponent
   ]);
   
@@ -67,20 +75,20 @@ const Arena = () => {
     gladiatorsRef.current = gladiators;
   }, [gladiators]);
 
-  // Update the gladiators array when playerGladiator changes
+  // Update the gladiators array when selectedGladiator changes
   useEffect(() => {
     setGladiators(prev => [
-      { ...playerGladiator, isLeft: true, attackCount: 0, health: playerGladiator.health },
+      { ...selectedGladiator, isLeft: true, attackCount: 0, health: selectedGladiator.health },
       prev[1]
     ]);
-  }, [playerGladiator]);
+  }, [selectedGladiator]);
 
   // Update opponent when player level changes
   useEffect(() => {
     const newOpponent = generateOpponent();
     setOpponent(newOpponent);
     setGladiators(prev => [prev[0], newOpponent]);
-  }, [playerGladiator.level]);
+  }, [selectedGladiator.level]);
 
   // Stamina regeneration
   useEffect(() => {
@@ -111,21 +119,22 @@ const Arena = () => {
 
   // Handle battle results (award XP)
   useEffect(() => {
-    if (battleEnded && winner && winner.id === playerGladiator.id && !xpAwarded) {
+    if (battleEnded && winner && winner.id === selectedGladiator.id && !xpAwarded) {
       // Award XP - 100 XP for winning
       const xpReward = 100;
       addExperiencePoints(xpReward);
       toast.success(`Victory! Gained ${xpReward} experience.`);
       setXpAwarded(true); // Mark XP as awarded to prevent multiple awards
     }
-  }, [battleEnded, winner, playerGladiator.id, addExperiencePoints, xpAwarded]);
+  }, [battleEnded, winner, selectedGladiator.id, addExperiencePoints, xpAwarded]);
 
   const resetBattle = () => {
-    const newOpponent = generateOpponent();
+    // Generate a new opponent, replacing the defeated one if applicable
+    const newOpponent = generateOpponent(winner?.id !== "opponent");
     setOpponent(newOpponent);
     
     setGladiators([
-      { ...playerGladiator, isLeft: true, attackCount: 0, health: playerGladiator.health },
+      { ...selectedGladiator, isLeft: true, attackCount: 0, health: selectedGladiator.health },
       newOpponent
     ]);
     
@@ -147,6 +156,15 @@ const Arena = () => {
       battleInProgressRef.current = false;
       toast.info("Combat stopped");
     }
+  };
+
+  const handleSelectGladiator = (gladiator: Gladiator) => {
+    if (isFighting) {
+      toast.error("Cannot change gladiator during combat");
+      return;
+    }
+    setSelectedGladiator(gladiator);
+    resetBattle();
   };
 
   const fight = async () => {
@@ -240,6 +258,15 @@ const Arena = () => {
           </Link>
         </div>
       )}
+      
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Select Your Gladiator</h2>
+        <GladiatorSelector 
+          gladiators={ownedGladiators} 
+          selectedGladiator={selectedGladiator}
+          onSelectGladiator={handleSelectGladiator}
+        />
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
         {gladiators.map((gladiator, index) => (

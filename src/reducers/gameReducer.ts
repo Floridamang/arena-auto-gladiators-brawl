@@ -8,7 +8,10 @@ type GameAction =
   | { type: "ADD_EXPERIENCE"; payload: number }
   | { type: "LEVEL_UP" }
   | { type: "ALLOCATE_SKILL_POINT"; payload: { attribute: keyof Pick<Gladiator, "strength" | "agility" | "endurance" | "maxStamina">; value: number } }
-  | { type: "RESET_SKILL_POINTS" };
+  | { type: "RESET_SKILL_POINTS" }
+  | { type: "ADD_GLADIATOR"; payload: Gladiator }
+  | { type: "UPDATE_GLADIATOR"; payload: Gladiator }
+  | { type: "SELECT_ACTIVE_GLADIATOR"; payload: string };
 
 export const calculateNextLevelXp = (level: number): number => {
   if (level <= 3) {
@@ -39,38 +42,62 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
       if (newExperience >= experienceNeeded) {
         const newLevel = state.playerGladiator.level + 1;
+        const updatedGladiator = {
+          ...state.playerGladiator,
+          experience: newExperience - experienceNeeded,
+          level: newLevel,
+          experienceToNextLevel: calculateNextLevelXp(newLevel),
+        };
+        
+        // Also update in the ownedGladiators array
+        const updatedOwnedGladiators = state.ownedGladiators.map(g => 
+          g.id === updatedGladiator.id ? updatedGladiator : g
+        );
+        
         return {
           ...state,
-          playerGladiator: {
-            ...state.playerGladiator,
-            experience: newExperience - experienceNeeded,
-            level: newLevel,
-            experienceToNextLevel: calculateNextLevelXp(newLevel),
-          },
+          playerGladiator: updatedGladiator,
+          ownedGladiators: updatedOwnedGladiators,
           availableSkillPoints: 3,
         };
       }
 
+      const updatedGladiator = {
+        ...state.playerGladiator,
+        experience: newExperience,
+      };
+      
+      // Also update in the ownedGladiators array
+      const updatedOwnedGladiators = state.ownedGladiators.map(g => 
+        g.id === updatedGladiator.id ? updatedGladiator : g
+      );
+      
       return {
         ...state,
-        playerGladiator: {
-          ...state.playerGladiator,
-          experience: newExperience,
-        },
+        playerGladiator: updatedGladiator,
+        ownedGladiators: updatedOwnedGladiators,
       };
     }
 
-    case "LEVEL_UP":
+    case "LEVEL_UP": {
+      const updatedGladiator = {
+        ...state.playerGladiator,
+        strength: state.playerGladiator.strength + state.tempAttributes.strength,
+        agility: state.playerGladiator.agility + state.tempAttributes.agility,
+        endurance: state.playerGladiator.endurance + state.tempAttributes.endurance,
+        maxStamina: state.playerGladiator.maxStamina + state.tempAttributes.maxStamina,
+        stamina: state.playerGladiator.stamina + state.tempAttributes.maxStamina,
+      };
+      
+      // Also update in the ownedGladiators array
+      const updatedOwnedGladiators = state.ownedGladiators.map(g => 
+        g.id === updatedGladiator.id ? updatedGladiator : g
+      );
+      
       return {
         ...state,
-        playerGladiator: {
-          ...state.playerGladiator,
-          strength: state.playerGladiator.strength + state.tempAttributes.strength,
-          agility: state.playerGladiator.agility + state.tempAttributes.agility,
-          endurance: state.playerGladiator.endurance + state.tempAttributes.endurance,
-          maxStamina: state.playerGladiator.maxStamina + state.tempAttributes.maxStamina,
-          stamina: state.playerGladiator.stamina + state.tempAttributes.maxStamina,
-        },
+        playerGladiator: updatedGladiator,
+        ownedGladiators: updatedOwnedGladiators,
         availableSkillPoints: 0,
         tempAttributes: {
           strength: 0,
@@ -79,6 +106,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           maxStamina: 0,
         },
       };
+    }
 
     case "ALLOCATE_SKILL_POINT": {
       const { attribute, value } = action.payload;
@@ -114,6 +142,42 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           maxStamina: 0,
         },
       };
+      
+    case "ADD_GLADIATOR": {
+      return {
+        ...state,
+        ownedGladiators: [...state.ownedGladiators, action.payload],
+      };
+    }
+    
+    case "UPDATE_GLADIATOR": {
+      const updatedGladiators = state.ownedGladiators.map(gladiator => 
+        gladiator.id === action.payload.id ? action.payload : gladiator
+      );
+      
+      // If the updated gladiator is the active one, update playerGladiator too
+      const updatedPlayerGladiator = 
+        state.playerGladiator.id === action.payload.id ? 
+          action.payload : 
+          state.playerGladiator;
+      
+      return {
+        ...state,
+        ownedGladiators: updatedGladiators,
+        playerGladiator: updatedPlayerGladiator
+      };
+    }
+    
+    case "SELECT_ACTIVE_GLADIATOR": {
+      const selectedGladiator = state.ownedGladiators.find(g => g.id === action.payload);
+      if (!selectedGladiator) return state;
+      
+      return {
+        ...state,
+        playerGladiator: selectedGladiator,
+        activeGladiatorId: action.payload
+      };
+    }
 
     default:
       return state;

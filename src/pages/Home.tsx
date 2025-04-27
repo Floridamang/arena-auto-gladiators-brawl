@@ -8,12 +8,6 @@ import { useEffect, useState } from "react";
 
 const HomePage = () => {
   const { dayCycle, playerGladiator } = useGame();
-  const [bgLoaded, setBgLoaded] = useState(false);
-  
-  useEffect(() => {
-    // Try a direct div with background-image instead of preloading
-    setBgLoaded(true);
-  }, []);
   
   const getCycleIcon = () => {
     switch (dayCycle) {
@@ -26,18 +20,17 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen relative bg-game-dark">
-      {/* Background div with absolute positioning */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')",
-          opacity: bgLoaded ? 1 : 0,
-          transition: "opacity 0.5s ease-in-out"
-        }}
-      />
-      
-      <div className="absolute inset-0 bg-black/30 z-0" /> {/* Overlay for better readability */}
+    <div 
+      className="min-h-screen relative"
+      style={{ 
+        backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat"
+      }}
+    >
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black/30 z-0" /> 
       
       <div className="relative z-10 p-8">
         {/* Character Info Section - Top Left */}

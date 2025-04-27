@@ -19,7 +19,7 @@ const BattleControls = ({
   battleEnded
 }: BattleControlsProps) => {
   return (
-    <div className="flex justify-center gap-4">
+    <div className="flex justify-center gap-4 mt-6">
       <Button
         onClick={onFight}
         disabled={isFighting}
@@ -45,6 +45,12 @@ const BattleControls = ({
       >
         Reset
       </Button>
+      
+      <Link to="/">
+        <Button variant="ghost" className="text-game-dark hover:text-game-primary">
+          Return Home
+        </Button>
+      </Link>
     </div>
   );
 };

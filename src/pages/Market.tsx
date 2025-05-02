@@ -106,21 +106,31 @@ const Market = () => {
   };
 
   return (
-    <div className="min-h-screen bg-game-light p-8">
-      <Link to="/" className="flex items-center gap-2 text-game-primary mb-6 hover:text-game-primary/80">
-        <ArrowLeft className="h-5 w-5" />
-        Back to Home
-      </Link>
-      
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-4xl font-bold text-game-dark">Market</h1>
-        <Badge variant="secondary" className="text-lg px-4 py-2">
-          Gold: {gold}
-        </Badge>
+    <div 
+      className="min-h-screen p-8"
+      style={{ 
+        backgroundImage: "url('/lovable-uploads/0e27af86-e22c-4a24-b9d6-77ff62e746b8.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center", 
+        backgroundRepeat: "no-repeat"
+      }}
+    >
+      <div className="bg-white/90 p-6 rounded-lg mb-6">
+        <Link to="/" className="flex items-center gap-2 text-game-primary mb-6 hover:text-game-primary/80">
+          <ArrowLeft className="h-5 w-5" />
+          Back to Home
+        </Link>
+        
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold text-game-dark">Market</h1>
+          <Badge variant="secondary" className="text-lg px-4 py-2">
+            Gold: {gold}
+          </Badge>
+        </div>
       </div>
       
       <Tabs defaultValue="gladiators" className="max-w-6xl mx-auto">
-        <TabsList className="grid grid-cols-3 w-full mb-6">
+        <TabsList className="grid grid-cols-3 w-full mb-6 bg-white/90">
           <TabsTrigger value="gladiators" className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4" />
             Gladiators
@@ -159,7 +169,7 @@ const Market = () => {
                   </div>
                   <div className="flex justify-between items-center pt-4">
                     <span className="text-lg font-bold text-game-primary">{gladiator.cost} Gold</span>
-                    <Button onClick={() => handleBuy(gladiator)}>
+                    <Button onClick={() => handleBuy(gladiator)} disabled={gold < gladiator.cost}>
                       Buy Gladiator
                     </Button>
                   </div>
@@ -171,7 +181,7 @@ const Market = () => {
         
         {/* Equipment Section */}
         <TabsContent value="equipment">
-          <Card>
+          <Card className="bg-white/90">
             <CardContent className="p-8 text-center">
               <Wrench className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-2xl font-bold mb-2">Equipment Shop</h3>
@@ -184,7 +194,7 @@ const Market = () => {
         
         {/* Miscellaneous Section */}
         <TabsContent value="misc">
-          <Card>
+          <Card className="bg-white/90">
             <CardContent className="p-8 text-center">
               <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-2xl font-bold mb-2">Miscellaneous Items</h3>

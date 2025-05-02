@@ -107,7 +107,7 @@ export const useBattle = (
     }));
     
     const runBattleLoop = async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 50)); // Doubled speed (reduced delay)
       
       let isBattleEnded = false;
   
@@ -140,7 +140,7 @@ export const useBattle = (
   
         if (shouldBreak || isBattleEnded || !isFightingRef.current) break;
         
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 50)); // Doubled speed (reduced delay)
       }
       
       battleInProgressRef.current = false;

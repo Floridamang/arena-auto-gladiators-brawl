@@ -1,11 +1,13 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Wrench } from "lucide-react";
 import GladiatorCard from "@/components/GladiatorCard";
 import { Button } from "@/components/ui/button";
 import { useGame } from "@/context/GameContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 const Training = () => {
   const { 
@@ -15,8 +17,14 @@ const Training = () => {
     tempAttributes,
     allocateSkillPoint,
     resetSkillPoints,
-    levelUp
+    levelUp,
+    purchaseSkillPoint,
+    devIncreaseLevel,
+    devAddGold,
+    gold
   } = useGame();
+
+  const [devMode, setDevMode] = useState(false);
 
   // Advance day cycle when entering training
   useEffect(() => {
@@ -30,7 +38,12 @@ const Training = () => {
         Back to Home
       </Link>
       
-      <h1 className="text-4xl font-bold text-game-dark mb-8">Training Camp</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-4xl font-bold text-game-dark">Training Camp</h1>
+        <Badge variant="secondary" className="text-lg px-4 py-2">
+          Gold: {gold}
+        </Badge>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
         <div>
@@ -39,6 +52,63 @@ const Training = () => {
             isAttacking={false}
             isHurt={false}
           />
+          
+          {/* Private Lessons Section */}
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Private Lessons</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-4">
+                Purchase additional skill points to enhance your gladiator's abilities.
+                Each skill point costs 100 gold.
+              </p>
+              <div className="flex items-center gap-3">
+                <Button onClick={() => purchaseSkillPoint(1)} disabled={gold < 100}>
+                  Buy 1 Skill Point (100 Gold)
+                </Button>
+                <Button onClick={() => purchaseSkillPoint(3)} disabled={gold < 300}>
+                  Buy 3 Skill Points (300 Gold)
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Developer Tools Section */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setDevMode(prev => !prev)}
+                className="border-gray-300"
+              >
+                <Wrench className="h-4 w-4 mr-1" />
+                {devMode ? "Hide" : "Show"} Dev Tools
+              </Button>
+            </div>
+            
+            {devMode && (
+              <Card className="bg-gray-100 border-dashed border-gray-400">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wrench className="h-4 w-4" /> 
+                    Developer Tools
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <Button onClick={() => devIncreaseLevel()}>
+                      Increase Level +1
+                    </Button>
+                    <Button onClick={() => devAddGold(500)}>
+                      Add 500 Gold
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
         
         {availableSkillPoints > 0 && (
@@ -187,11 +257,10 @@ const Training = () => {
               <Button 
                 onClick={levelUp} 
                 disabled={
-                  availableSkillPoints === 3 || // All points still available
-                  (tempAttributes.strength === 0 && 
-                   tempAttributes.agility === 0 && 
-                   tempAttributes.endurance === 0 && 
-                   tempAttributes.maxStamina === 0)
+                  tempAttributes.strength === 0 && 
+                  tempAttributes.agility === 0 && 
+                  tempAttributes.endurance === 0 && 
+                  tempAttributes.maxStamina === 0
                 }
               >
                 Confirm

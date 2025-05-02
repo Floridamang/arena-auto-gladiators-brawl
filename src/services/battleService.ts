@@ -6,19 +6,37 @@ import { getRandomRomanName } from "@/context/initialState";
 export const generateOpponent = (playerLevel: number): Gladiator => {
   const level = playerLevel || 1;
   const name = getRandomRomanName();
+  
+  // Base stats with some randomization
+  const baseStrength = Math.floor(18 * 0.9 + (level - 1) * 1.8 + Math.random() * 4 - 2);
+  const baseAgility = Math.floor(10 * 0.9 + (level - 1) * 0.9 + Math.random() * 4 - 2);
+  const baseEndurance = Math.floor(12 * 0.9 + (level - 1) * 0.9 + Math.random() * 4 - 2);
+  const baseMaxStamina = Math.floor(100 * 0.9 + (level - 1) * 4.5 + Math.random() * 10 - 5);
+  const baseHealth = Math.floor(100 * 0.9 + (level - 1) * 9 + Math.random() * 10 - 5);
+  
+  // Apply the 10% reduction to make opponents easier
+  const strength = Math.floor(baseStrength * 0.9);
+  const agility = Math.floor(baseAgility * 0.9);
+  const endurance = Math.floor(baseEndurance * 0.9);
+  const maxStamina = Math.floor(baseMaxStamina * 0.9);
+  const health = Math.floor(baseHealth * 0.9);
+  
+  // Calculate attack and defense based on strength and agility
+  const attack = Math.floor((strength * 0.6 + agility * 0.2) * 0.9);
+  const defense = Math.floor((strength * 0.2 + agility * 0.6) * 0.9);
       
   return {
     id: "opponent",
     name,
-    attack: 12 + (level - 1) * 2,
-    defense: 8 + (level - 1),
-    health: 100 + (level - 1) * 10,
+    attack,
+    defense,
+    health,
     isLeft: false,
-    strength: 20 + (level - 1) * 2,
-    agility: 10 + (level - 1),
-    stamina: 100 + (level - 1) * 5,
-    maxStamina: 100 + (level - 1) * 5,
-    endurance: 12 + (level - 1),
+    strength,
+    agility,
+    stamina: maxStamina,
+    maxStamina,
+    endurance,
     level,
     traits: [{
       name: "bold" as const,
@@ -41,4 +59,3 @@ export const handleBattleEnd = (
   }
   return false;
 };
-

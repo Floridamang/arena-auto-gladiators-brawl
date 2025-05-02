@@ -1,3 +1,4 @@
+
 import { GameState, DayCycle } from "@/types/gameState";
 import { Gladiator } from "@/types/gladiator";
 
@@ -11,7 +12,10 @@ type GameAction =
   | { type: "ADD_GLADIATOR"; payload: Gladiator }
   | { type: "UPDATE_GLADIATOR"; payload: Gladiator }
   | { type: "SELECT_ACTIVE_GLADIATOR"; payload: string }
-  | { type: "UPDATE_GOLD"; payload: number };
+  | { type: "UPDATE_GOLD"; payload: number }
+  | { type: "PURCHASE_SKILL_POINT"; payload: number }
+  | { type: "DEV_INCREASE_LEVEL" }
+  | { type: "DEV_ADD_GOLD"; payload: number };
 
 export const calculateNextLevelXp = (level: number): number => {
   if (level <= 3) {
@@ -58,7 +62,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           ...state,
           playerGladiator: updatedGladiator,
           ownedGladiators: updatedOwnedGladiators,
-          availableSkillPoints: 3,
+          availableSkillPoints: state.availableSkillPoints + 3,
         };
       }
 
@@ -180,6 +184,47 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     }
 
     case "UPDATE_GOLD": {
+      return {
+        ...state,
+        gold: state.gold + action.payload
+      };
+    }
+    
+    case "PURCHASE_SKILL_POINT": {
+      // Check if player has enough gold
+      if (state.gold < 100 * action.payload) {
+        return state;
+      }
+      
+      return {
+        ...state,
+        gold: state.gold - 100 * action.payload,
+        availableSkillPoints: state.availableSkillPoints + action.payload
+      };
+    }
+    
+    case "DEV_INCREASE_LEVEL": {
+      const newLevel = state.playerGladiator.level + 1;
+      const updatedGladiator = {
+        ...state.playerGladiator,
+        level: newLevel,
+        experienceToNextLevel: calculateNextLevelXp(newLevel),
+      };
+      
+      // Also update in the ownedGladiators array
+      const updatedOwnedGladiators = state.ownedGladiators.map(g => 
+        g.id === updatedGladiator.id ? updatedGladiator : g
+      );
+      
+      return {
+        ...state,
+        playerGladiator: updatedGladiator,
+        ownedGladiators: updatedOwnedGladiators,
+        availableSkillPoints: state.availableSkillPoints + 3,
+      };
+    }
+    
+    case "DEV_ADD_GOLD": {
       return {
         ...state,
         gold: state.gold + action.payload

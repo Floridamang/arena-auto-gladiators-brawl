@@ -17,6 +17,9 @@ interface GameContextType extends GameState {
   updateGladiator: (gladiator: Gladiator) => void;
   selectActiveGladiator: (id: string) => void;
   updateGold: (amount: number) => void;
+  purchaseSkillPoint: (amount: number) => void;
+  devIncreaseLevel: () => void;
+  devAddGold: (amount: number) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -79,6 +82,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateGold = (amount: number) => {
     dispatch({ type: "UPDATE_GOLD", payload: amount });
   };
+  
+  const purchaseSkillPoint = (amount: number) => {
+    if (state.gold < 100 * amount) {
+      toast.error("Not enough gold!");
+      return;
+    }
+    
+    dispatch({ type: "PURCHASE_SKILL_POINT", payload: amount });
+    toast.success(`Purchased ${amount} skill point${amount > 1 ? 's' : ''}!`);
+  };
+  
+  const devIncreaseLevel = () => {
+    dispatch({ type: "DEV_INCREASE_LEVEL" });
+    toast.success("Level increased (Dev mode)");
+  };
+  
+  const devAddGold = (amount: number) => {
+    dispatch({ type: "DEV_ADD_GOLD", payload: amount });
+    toast.success(`Added ${amount} gold (Dev mode)`);
+  };
 
   return (
     <GameContext.Provider value={{
@@ -93,6 +116,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateGladiator,
       selectActiveGladiator,
       updateGold,
+      purchaseSkillPoint,
+      devIncreaseLevel,
+      devAddGold,
     }}>
       {children}
     </GameContext.Provider>

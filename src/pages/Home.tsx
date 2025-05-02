@@ -20,10 +20,8 @@ const HomePage = () => {
 
   return (
     <div 
-      className="min-h-screen bg-image relative"
-      style={{ 
-        backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')"
-      }}
+      className="min-h-screen relative bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')" }}
     >
       {/* Dark overlay for better readability */}
       <div className="absolute inset-0 bg-black/30 z-0" /> 

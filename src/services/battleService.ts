@@ -4,15 +4,16 @@ import { toast } from "@/components/ui/sonner";
 import { getRandomRomanName } from "@/context/initialState";
 
 export const generateOpponent = (playerLevel: number): Gladiator => {
-  const level = playerLevel || 1;
+  // Ignore player level parameter - opponents are now fixed level
+  const level = 1;
   const name = getRandomRomanName();
   
-  // Base stats with some randomization
-  const baseStrength = Math.floor(18 * 0.9 + (level - 1) * 1.8 + Math.random() * 4 - 2);
-  const baseAgility = Math.floor(10 * 0.9 + (level - 1) * 0.9 + Math.random() * 4 - 2);
-  const baseEndurance = Math.floor(12 * 0.9 + (level - 1) * 0.9 + Math.random() * 4 - 2);
-  const baseMaxStamina = Math.floor(100 * 0.9 + (level - 1) * 4.5 + Math.random() * 10 - 5);
-  const baseHealth = Math.floor(100 * 0.9 + (level - 1) * 9 + Math.random() * 10 - 5);
+  // Base stats with some randomization - no player level scaling
+  const baseStrength = Math.floor(18 + Math.random() * 4 - 2);
+  const baseAgility = Math.floor(10 + Math.random() * 4 - 2);
+  const baseEndurance = Math.floor(12 + Math.random() * 4 - 2);
+  const baseMaxStamina = Math.floor(100 + Math.random() * 10 - 5);
+  const baseHealth = Math.floor(100 + Math.random() * 10 - 5);
   
   // Apply the 10% reduction to make opponents easier
   const strength = Math.floor(baseStrength * 0.9);

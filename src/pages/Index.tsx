@@ -13,12 +13,9 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen py-8"
+      className="min-h-screen py-8 bg-image"
       style={{ 
         backgroundImage: "url('/lovable-uploads/e9f268a5-cd22-4514-a298-0fde6957fb43.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
       }}
     >
       <Arena />

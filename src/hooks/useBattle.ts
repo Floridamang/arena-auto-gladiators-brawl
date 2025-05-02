@@ -50,13 +50,15 @@ export const useBattle = (
   }, [selectedGladiator]);
 
   useEffect(() => {
-    const newOpponent = generateOpponent(selectedGladiator.level || 1);
+    // Generate a new opponent but don't use the player's level
+    const newOpponent = generateOpponent(1);
     setOpponent(newOpponent);
     setGladiators(prev => [prev[0], newOpponent]);
-  }, [selectedGladiator.level]);
+  }, [selectedGladiator]);
 
   const resetBattle = () => {
-    const newOpponent = generateOpponent(selectedGladiator.level || 1);
+    // Generate a new opponent but don't use the player's level
+    const newOpponent = generateOpponent(1);
     setOpponent(newOpponent);
     
     setGladiators([

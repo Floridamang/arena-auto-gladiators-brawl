@@ -8,6 +8,7 @@ import { useGame } from "@/context/GameContext";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import GladiatorSelector from "@/components/GladiatorSelector";
 
 const Training = () => {
   const { 
@@ -21,15 +22,23 @@ const Training = () => {
     purchaseSkillPoint,
     devIncreaseLevel,
     devAddGold,
-    gold
+    gold,
+    ownedGladiators,
+    selectActiveGladiator
   } = useGame();
 
   const [devMode, setDevMode] = useState(false);
+  const [selectedGladiator, setSelectedGladiator] = useState(playerGladiator);
 
   // Advance day cycle when entering training
   useEffect(() => {
     advanceCycle();
   }, [advanceCycle]);
+
+  const handleSelectGladiator = (gladiator: typeof playerGladiator) => {
+    setSelectedGladiator(gladiator);
+    selectActiveGladiator(gladiator.id);
+  };
 
   return (
     <div className="min-h-screen bg-game-light p-8">
@@ -44,11 +53,20 @@ const Training = () => {
           Gold: {gold}
         </Badge>
       </div>
+
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Select Your Gladiator</h2>
+        <GladiatorSelector 
+          gladiators={ownedGladiators} 
+          selectedGladiator={selectedGladiator}
+          onSelectGladiator={handleSelectGladiator}
+        />
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
         <div>
           <GladiatorCard
-            gladiator={playerGladiator}
+            gladiator={selectedGladiator}
             isAttacking={false}
             isHurt={false}
           />
@@ -132,7 +150,7 @@ const Training = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono">
-                    {playerGladiator.strength} 
+                    {selectedGladiator.strength} 
                     {tempAttributes.strength > 0 && (
                       <span className="text-green-600">+{tempAttributes.strength}</span>
                     )}
@@ -163,7 +181,7 @@ const Training = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono">
-                    {playerGladiator.agility} 
+                    {selectedGladiator.agility} 
                     {tempAttributes.agility > 0 && (
                       <span className="text-green-600">+{tempAttributes.agility}</span>
                     )}
@@ -194,7 +212,7 @@ const Training = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono">
-                    {playerGladiator.endurance} 
+                    {selectedGladiator.endurance} 
                     {tempAttributes.endurance > 0 && (
                       <span className="text-green-600">+{tempAttributes.endurance}</span>
                     )}
@@ -225,7 +243,7 @@ const Training = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-mono">
-                    {playerGladiator.maxStamina} 
+                    {selectedGladiator.maxStamina} 
                     {tempAttributes.maxStamina > 0 && (
                       <span className="text-green-600">+{tempAttributes.maxStamina}</span>
                     )}
@@ -273,11 +291,11 @@ const Training = () => {
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold text-game-dark mb-4">Training</h2>
             <p className="text-gray-600">
-              Your gladiator is currently at level {playerGladiator.level}.
+              Your gladiator is currently at level {selectedGladiator.level}.
               Win more battles to gain experience and level up.
             </p>
             <div className="mt-4 bg-game-light/50 p-3 rounded-md">
-              <p>Current XP: {playerGladiator.experience}/{playerGladiator.experienceToNextLevel}</p>
+              <p>Current XP: {selectedGladiator.experience}/{selectedGladiator.experienceToNextLevel}</p>
             </div>
           </div>
         )}

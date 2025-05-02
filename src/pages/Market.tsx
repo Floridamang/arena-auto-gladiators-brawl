@@ -1,15 +1,17 @@
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Wrench, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useGame } from "@/context/GameContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { useGame } from "@/context/GameContext";
 import { PurchasableGladiator } from "@/types/gladiator";
 import { toast } from "@/components/ui/sonner";
 
 const Market = () => {
-  const { gold } = useGame();
+  const { gold, addGladiator, updateGold } = useGame();
 
   const purchasableGladiators: PurchasableGladiator[] = [
     {
@@ -82,6 +84,21 @@ const Market = () => {
 
   const handleBuy = (gladiator: PurchasableGladiator) => {
     if (gold >= gladiator.cost) {
+      // Remove cost property as it's not part of the Gladiator type
+      const { cost, ...newGladiator } = gladiator;
+      
+      // Add unique ID to avoid collisions
+      const uniqueId = `${gladiator.id}-${Date.now()}`;
+      
+      // Add gladiator to roster
+      addGladiator({
+        ...newGladiator,
+        id: uniqueId
+      });
+      
+      // Reduce gold
+      updateGold(-cost);
+      
       toast.success(`${gladiator.name} has been purchased!`);
     } else {
       toast.error("Not enough gold!");
@@ -102,36 +119,82 @@ const Market = () => {
         </Badge>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {purchasableGladiators.map((gladiator) => (
-          <Card key={gladiator.id} className="bg-white">
-            <CardHeader>
-              <CardTitle>{gladiator.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <img 
-                src={gladiator.image} 
-                alt={gladiator.name}
-                className="w-full h-[400px] object-contain rounded-lg bg-game-light/50"
-              />
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">Attack: {gladiator.attack}</p>
-                <p className="text-sm text-gray-600">Defense: {gladiator.defense}</p>
-                <p className="text-sm text-gray-600">Health: {gladiator.health}</p>
-                <p className="text-sm text-gray-600">Strength: {gladiator.strength}</p>
-                <p className="text-sm text-gray-600">Agility: {gladiator.agility}</p>
-                <p className="text-sm text-gray-600">Endurance: {gladiator.endurance}</p>
-              </div>
-              <div className="flex justify-between items-center pt-4">
-                <span className="text-lg font-bold text-game-primary">{gladiator.cost} Gold</span>
-                <Button onClick={() => handleBuy(gladiator)}>
-                  Buy Gladiator
-                </Button>
-              </div>
+      <Tabs defaultValue="gladiators" className="max-w-6xl mx-auto">
+        <TabsList className="grid grid-cols-3 w-full mb-6">
+          <TabsTrigger value="gladiators" className="flex items-center gap-2">
+            <ShoppingBag className="h-4 w-4" />
+            Gladiators
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Wrench className="h-4 w-4" />
+            Equipment
+          </TabsTrigger>
+          <TabsTrigger value="misc" className="flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Miscellaneous
+          </TabsTrigger>
+        </TabsList>
+        
+        {/* Gladiators Section */}
+        <TabsContent value="gladiators">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {purchasableGladiators.map((gladiator) => (
+              <Card key={gladiator.id} className="bg-white">
+                <CardHeader>
+                  <CardTitle>{gladiator.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <img 
+                    src={gladiator.image} 
+                    alt={gladiator.name}
+                    className="w-full h-[400px] object-contain rounded-lg bg-game-light/50"
+                  />
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">Attack: {gladiator.attack}</p>
+                    <p className="text-sm text-gray-600">Defense: {gladiator.defense}</p>
+                    <p className="text-sm text-gray-600">Health: {gladiator.health}</p>
+                    <p className="text-sm text-gray-600">Strength: {gladiator.strength}</p>
+                    <p className="text-sm text-gray-600">Agility: {gladiator.agility}</p>
+                    <p className="text-sm text-gray-600">Endurance: {gladiator.endurance}</p>
+                  </div>
+                  <div className="flex justify-between items-center pt-4">
+                    <span className="text-lg font-bold text-game-primary">{gladiator.cost} Gold</span>
+                    <Button onClick={() => handleBuy(gladiator)}>
+                      Buy Gladiator
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        
+        {/* Equipment Section */}
+        <TabsContent value="equipment">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Wrench className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-2xl font-bold mb-2">Equipment Shop</h3>
+              <p className="text-muted-foreground">
+                Equipment for your gladiators will be available soon.
+              </p>
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
+        
+        {/* Miscellaneous Section */}
+        <TabsContent value="misc">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-2xl font-bold mb-2">Miscellaneous Items</h3>
+              <p className="text-muted-foreground">
+                Various useful items will be available for purchase soon.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

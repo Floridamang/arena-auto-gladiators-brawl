@@ -16,6 +16,7 @@ interface GameContextType extends GameState {
   addGladiator: (gladiator: Gladiator) => void;
   updateGladiator: (gladiator: Gladiator) => void;
   selectActiveGladiator: (id: string) => void;
+  updateGold: (amount: number) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -75,6 +76,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: "SELECT_ACTIVE_GLADIATOR", payload: id });
   };
 
+  const updateGold = (amount: number) => {
+    dispatch({ type: "UPDATE_GOLD", payload: amount });
+  };
+
   return (
     <GameContext.Provider value={{
       ...state,
@@ -87,6 +92,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addGladiator,
       updateGladiator,
       selectActiveGladiator,
+      updateGold,
     }}>
       {children}
     </GameContext.Provider>

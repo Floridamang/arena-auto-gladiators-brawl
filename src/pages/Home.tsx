@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Sword, GraduationCap, Store, Bed, Sun, SunMedium, Moon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useGame } from "@/context/GameContext";
-import { useEffect, useState } from "react";
 
 const HomePage = () => {
   const { dayCycle, playerGladiator } = useGame();
@@ -21,12 +20,9 @@ const HomePage = () => {
 
   return (
     <div 
-      className="min-h-screen relative"
+      className="min-h-screen bg-image relative"
       style={{ 
-        backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
+        backgroundImage: "url('/lovable-uploads/c8f909b3-dfaf-4609-b69b-0d4b338d109c.jpg')"
       }}
     >
       {/* Dark overlay for better readability */}
@@ -61,16 +57,16 @@ const HomePage = () => {
         <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto mt-12">
           {/* Top Row - Sleep area near the mansion/villa */}
           <div className="col-start-1 justify-self-start">
-            <Link to="/rest" className="w-64">
+            <Link to="/ludus" className="w-64">
               <Card className="bg-white/90 hover:bg-white transition-colors">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Bed className="h-6 w-6" />
-                    Sleep
+                    Ludus
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Rest and recover in your villa</p>
+                  <p className="text-muted-foreground">Manage your gladiator school</p>
                 </CardContent>
               </Card>
             </Link>

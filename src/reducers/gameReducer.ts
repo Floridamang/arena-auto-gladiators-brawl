@@ -1,4 +1,3 @@
-
 import { GameState, DayCycle } from "@/types/gameState";
 import { Gladiator } from "@/types/gladiator";
 
@@ -11,7 +10,8 @@ type GameAction =
   | { type: "RESET_SKILL_POINTS" }
   | { type: "ADD_GLADIATOR"; payload: Gladiator }
   | { type: "UPDATE_GLADIATOR"; payload: Gladiator }
-  | { type: "SELECT_ACTIVE_GLADIATOR"; payload: string };
+  | { type: "SELECT_ACTIVE_GLADIATOR"; payload: string }
+  | { type: "UPDATE_GOLD"; payload: number };
 
 export const calculateNextLevelXp = (level: number): number => {
   if (level <= 3) {
@@ -176,6 +176,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         ...state,
         playerGladiator: selectedGladiator,
         activeGladiatorId: action.payload
+      };
+    }
+
+    case "UPDATE_GOLD": {
+      return {
+        ...state,
+        gold: state.gold + action.payload
       };
     }
 

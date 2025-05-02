@@ -9,7 +9,7 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Training from "./pages/Training";
 import Market from "./pages/Market";
-import Rest from "./pages/Rest";
+import Ludus from "./pages/Ludus";
 import { GameProvider } from "./context/GameContext";
 
 const queryClient = new QueryClient();
@@ -26,7 +26,7 @@ const App = () => (
             <Route path="/arena" element={<Index />} />
             <Route path="/training" element={<Training />} />
             <Route path="/market" element={<Market />} />
-            <Route path="/rest" element={<Rest />} />
+            <Route path="/ludus" element={<Ludus />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

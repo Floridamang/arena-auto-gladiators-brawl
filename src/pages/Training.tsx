@@ -38,7 +38,7 @@ const Training = () => {
   };
 
   return (
-    <div className="min-h-screen bg-game-light p-8">
+    <div className="min-h-screen w-full bg-game-light p-8">
       <TrainingHeader 
         gold={gold}
         selectedGladiator={selectedGladiator}

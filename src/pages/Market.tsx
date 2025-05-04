@@ -107,12 +107,14 @@ const Market = () => {
 
   return (
     <div 
-      className="min-h-screen p-8"
+      className="min-h-screen w-full p-8 bg-cover bg-center bg-no-repeat"
       style={{ 
         backgroundImage: "url('/lovable-uploads/0e27af86-e22c-4a24-b9d6-77ff62e746b8.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center", 
-        backgroundRepeat: "no-repeat"
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0
       }}
     >
       <div className="bg-white/90 p-6 rounded-lg mb-6">

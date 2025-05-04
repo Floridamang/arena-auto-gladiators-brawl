@@ -15,7 +15,7 @@ const Rest = () => {
   };
   
   return (
-    <div className="min-h-screen bg-game-light p-8">
+    <div className="min-h-screen w-full bg-game-light p-8">
       <Link to="/" className="flex items-center gap-2 text-game-primary mb-6 hover:text-game-primary/80">
         <ArrowLeft className="h-5 w-5" />
         Back to Home

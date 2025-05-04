@@ -18,18 +18,20 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <GameProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/arena" element={<Index />} />
-            <Route path="/training" element={<Training />} />
-            <Route path="/market" element={<Market />} />
-            <Route path="/ludus" element={<Ludus />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <div className="w-full">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/arena" element={<Index />} />
+              <Route path="/training" element={<Training />} />
+              <Route path="/market" element={<Market />} />
+              <Route path="/ludus" element={<Ludus />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
       </GameProvider>
     </TooltipProvider>
   </QueryClientProvider>

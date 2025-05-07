@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Training from "./pages/Training";
 import Market from "./pages/Market";
 import Ludus from "./pages/Ludus";
+import Rest from "./pages/Rest";
 import { GameProvider } from "./context/GameContext";
 
 const queryClient = new QueryClient();
@@ -18,7 +19,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <GameProvider>
-        <div className="w-full">
+        <div className="w-full min-h-screen relative">
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/training" element={<Training />} />
               <Route path="/market" element={<Market />} />
               <Route path="/ludus" element={<Ludus />} />
+              <Route path="/rest" element={<Rest />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

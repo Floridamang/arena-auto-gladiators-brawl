@@ -105,9 +105,31 @@ const Market = () => {
     }
   };
 
+  // Sample equipment items
+  const equipmentItems = [
+    {
+      id: "sword1",
+      name: "Gladius",
+      type: "weapon",
+      attack: 5,
+      cost: 150,
+      image: "/lovable-uploads/683e2172-44b9-41ff-aa3c-3cc0317f1f55.png",
+      description: "A short sword used by Roman legionaries"
+    },
+    {
+      id: "shield1",
+      name: "Scutum",
+      type: "shield",
+      defense: 7,
+      cost: 120,
+      image: "/lovable-uploads/30daa40b-659f-4b48-9d08-19982ac5767a.png",
+      description: "A large rectangular shield"
+    }
+  ];
+
   return (
     <div 
-      className="min-h-screen w-full p-8 bg-cover bg-center bg-no-repeat"
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat"
       style={{ 
         backgroundImage: "url('/lovable-uploads/0e27af86-e22c-4a24-b9d6-77ff62e746b8.png')",
         position: "absolute",
@@ -183,15 +205,47 @@ const Market = () => {
         
         {/* Equipment Section */}
         <TabsContent value="equipment">
-          <Card className="bg-white/90">
-            <CardContent className="p-8 text-center">
-              <Wrench className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-2xl font-bold mb-2">Equipment Shop</h3>
-              <p className="text-muted-foreground">
-                Equipment for your gladiators will be available soon.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {equipmentItems.map((item) => (
+              <Card key={item.id} className="bg-white">
+                <CardHeader>
+                  <CardTitle>{item.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <img 
+                    src={item.image} 
+                    alt={item.name}
+                    className="w-full h-[200px] object-contain rounded-lg bg-game-light/50"
+                  />
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                    {item.type === "weapon" && (
+                      <p className="text-sm text-gray-600">Attack: +{item.attack}</p>
+                    )}
+                    {item.type === "shield" && (
+                      <p className="text-sm text-gray-600">Defense: +{item.defense}</p>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center pt-4">
+                    <span className="text-lg font-bold text-game-primary">{item.cost} Gold</span>
+                    <Button onClick={() => toast.info("Equipment purchases coming soon!")} disabled={gold < item.cost}>
+                      Buy Item
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            
+            <Card className="bg-white/90">
+              <CardContent className="p-8 text-center">
+                <Wrench className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-2xl font-bold mb-2">More Equipment Soon</h3>
+                <p className="text-muted-foreground">
+                  Additional equipment for your gladiators will be available soon.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         
         {/* Miscellaneous Section */}

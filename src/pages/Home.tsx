@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useGame } from "@/context/GameContext";
 
 const HomePage = () => {
-  const { dayCycle, playerGladiator } = useGame();
+  const { dayCycle, playerGladiator, gold } = useGame();
   
   const getCycleIcon = () => {
     switch (dayCycle) {
@@ -31,11 +31,11 @@ const HomePage = () => {
       }}
     >
       {/* Dark overlay for better readability */}
-      <div className="absolute inset-0 bg-black/30 z-0" /> 
+      <div className="absolute inset-0 bg-black/50 z-0" /> 
       
       <div className="relative z-10 p-8 w-full">
         {/* Character Info Section - Top Left */}
-        <div className="flex items-start gap-4 mb-12">
+        <div className="flex items-start gap-4 mb-8">
           <Avatar className="w-24 h-24 border-4 border-game-primary">
             <AvatarImage src="/lovable-uploads/8f18e069-f431-4d6b-8b8b-7ed3f153d601.png" alt="Septimus" />
             <AvatarFallback>SG</AvatarFallback>
@@ -49,81 +49,75 @@ const HomePage = () => {
                 {playerGladiator.experience}/{playerGladiator.experienceToNextLevel} XP
               </span>
             </div>
+            <div className="mt-2 text-xl">
+              <span className="text-yellow-400 font-bold">{gold} Gold</span>
+            </div>
           </div>
         </div>
 
         {/* Day Cycle Indicator - Top Center */}
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 bg-game-dark/80 rounded-lg p-2 px-4 text-white flex items-center gap-2">
+        <div className="absolute top-8 right-8 bg-game-dark/80 rounded-lg p-2 px-4 text-white flex items-center gap-2">
           {getCycleIcon()}
           <span className="font-semibold capitalize">{dayCycle}</span>
         </div>
 
-        {/* Navigation Grid - Positioned according to the villa layout */}
-        <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto mt-12">
-          {/* Top Row - Sleep area near the mansion/villa */}
-          <div className="col-start-1 justify-self-start">
-            <Link to="/ludus" className="w-64">
-              <Card className="bg-white/90 hover:bg-white transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bed className="h-6 w-6" />
-                    Ludus
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Manage your gladiator school</p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+        {/* Navigation Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-12">
+          <Link to="/ludus">
+            <Card className="bg-white/90 hover:bg-white transition-colors border-2 border-game-primary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bed className="h-6 w-6" />
+                  Ludus
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Manage your gladiator school</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          {/* Top Right - Training camp near the training area with gladiators */}
-          <div className="col-start-2 justify-self-end">
-            <Link to="/training" className="w-64">
-              <Card className="bg-white/90 hover:bg-white transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <GraduationCap className="h-6 w-6" />
-                    Training Camp
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Train your gladiators</p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+          <Link to="/training">
+            <Card className="bg-white/90 hover:bg-white transition-colors border-2 border-game-primary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <GraduationCap className="h-6 w-6" />
+                  Training Camp
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Train your gladiators</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          {/* Bottom Row - Arena and Market positioned toward the town in the distance */}
-          <div className="col-span-2 flex justify-center gap-6 mt-32">
-            <Link to="/arena" className="w-64">
-              <Card className="bg-white/90 hover:bg-white transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sword className="h-6 w-6" />
-                    Gladiator Battle
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Enter the arena</p>
-                </CardContent>
-              </Card>
-            </Link>
+          <Link to="/arena">
+            <Card className="bg-white/90 hover:bg-white transition-colors border-2 border-game-primary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sword className="h-6 w-6" />
+                  Gladiator Battle
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Enter the arena</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-            <Link to="/market" className="w-64">
-              <Card className="bg-white/90 hover:bg-white transition-colors">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Store className="h-6 w-6" />
-                    Market
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Buy and sell gladiators</p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+          <Link to="/market">
+            <Card className="bg-white/90 hover:bg-white transition-colors border-2 border-game-primary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Store className="h-6 w-6" />
+                  Market
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Buy and sell gladiators</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
     </div>
